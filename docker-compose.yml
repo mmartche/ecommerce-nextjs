@@ -29,9 +29,10 @@ services:
     environment:
       PORT: 4000
       DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
     volumes:
-      - ./backend:/app
-      - /app/node_modules
+      - ./backend/src:/app/src
+      - ./backend/prisma:/app/prisma
     ports:
       - "4000:4000"
     depends_on:

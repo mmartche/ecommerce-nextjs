@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getCart, clearCart } from "../../lib/cart";
+import { useAuth } from "../../context/AuthContext";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -14,7 +15,7 @@ export default function CheckoutPage() {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
+  const { user, loading: authLoading } = useAuth();
   const [customer, setCustomer] = useState({
     name: "",
     email: "",
@@ -24,6 +25,12 @@ export default function CheckoutPage() {
     city: "",
     country: "Portugal"
   });
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace("/login?redirect=/checkout");
+    }
+  }, [authLoading, user, router]);
 
   useEffect(() => {
     setCart(getCart());
@@ -54,13 +61,21 @@ export default function CheckoutPage() {
         `${API_URL}/api/orders`,
         {
           method: "POST",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            customer,
             items: cart,
-            shipping: 0
+            shipping: 0,
+
+            shippingAddress: {
+              name: customer.name,
+              address: customer.address,
+              postalCode: customer.postalCode,
+              city: customer.city,
+              country: customer.country
+            }
           })
         }
       );
@@ -89,6 +104,14 @@ export default function CheckoutPage() {
       Number(item.unitPrice) * Number(item.quantity),
     0
   );
+
+  if (authLoading) {
+    return <main>Checking session...</main>;
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <main

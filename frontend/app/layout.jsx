@@ -1,4 +1,5 @@
 import Header from "../components/Header";
+import { AuthProvider } from "../context/AuthContext";
 
 export const metadata = {
   title: "My E-commerce",
@@ -16,9 +17,11 @@ export default function RootLayout({ children }) {
           color: "#111"
         }}
       >
-        <Header />
+        <AuthProvider>
+          <Header />
 
-        {children}
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

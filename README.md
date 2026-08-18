@@ -18,8 +18,13 @@ docker-compose up -d
 
 ```bash
 docker logs -f ecommerce-nextjs
+docker logs -f ecommerce-api
 ```
 
+## Restart API
+```bash
+docker-compose restart api
+```
 
 Open:
 - Next.js: http://localhost:3000

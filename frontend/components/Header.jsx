@@ -1,7 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import CartButton from "./CartButton";
+import { useAuth } from "../context/AuthContext";
 
 export default function Header() {
+  const { user, loading } = useAuth();
+
   return (
     <header
       style={{
@@ -49,6 +54,45 @@ export default function Header() {
           </Link>
 
           <CartButton />
+
+          {!loading && !user && (
+            <Link
+              href="/login"
+              style={{
+                textDecoration: "none",
+                color: "#111"
+              }}
+            >
+              Login
+            </Link>
+          )}
+
+          {!loading && user && (
+            <Link
+              href="/account"
+              style={{
+                textDecoration: "none",
+                color: "#111",
+                fontWeight: "600"
+              }}
+            >
+              Hello, {user.name}
+            </Link>
+          )}
+
+          {!loading &&
+            user?.role === "ADMIN" && (
+              <Link
+                href="/admin"
+                style={{
+                  textDecoration: "none",
+                  color: "#111",
+                  fontWeight: "600"
+                }}
+              >
+                Admin
+              </Link>
+            )}
         </nav>
       </div>
     </header>

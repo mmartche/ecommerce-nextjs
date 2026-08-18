@@ -2,13 +2,28 @@ const express = require("express");
 const cors = require("cors");
 const { PrismaClient } = require("@prisma/client");
 
+const cookieParser = require("cookie-parser");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
+const {
+  authGuard,
+  adminGuard
+} = require("./middleware/auth");
+
 const app = express();
 const prisma = new PrismaClient();
 
 const PORT = process.env.PORT || 4000;
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://192.168.50.159:3000",
+    credentials: true
+  })
+);
 app.use(express.json());
+app.use(cookieParser());
 
 app.get("/health", async (req, res) => {
   try {
@@ -191,23 +206,29 @@ app.post("/api/products", async (req, res) => {
   }
 });
 
-app.post("/api/orders", async (req, res) => {
+app.post("/api/orders", authGuard, async (req, res) => {
   try {
     const {
-      customer,
       items,
-      shipping = 0
+      shipping = 0,
+      shippingAddress
     } = req.body;
-
-    if (!customer?.name || !customer?.email) {
-      return res.status(400).json({
-        error: "Customer name and email are required"
-      });
-    }
 
     if (!items || items.length === 0) {
       return res.status(400).json({
         error: "Order must contain at least one item"
+      });
+    }
+
+    if (
+      !shippingAddress?.name ||
+      !shippingAddress?.address ||
+      !shippingAddress?.postalCode ||
+      !shippingAddress?.city ||
+      !shippingAddress?.country
+    ) {
+      return res.status(400).json({
+        error: "Shipping address is required"
       });
     }
 
@@ -226,17 +247,22 @@ app.post("/api/orders", async (req, res) => {
         shipping,
         total,
 
-        customer: {
-          create: {
-            name: customer.name,
-            email: customer.email,
-            phone: customer.phone || null,
-            address: customer.address || null,
-            postalCode: customer.postalCode || null,
-            city: customer.city || null,
-            country: customer.country || "Portugal"
-          }
-        },
+        shippingName:
+          shippingAddress.name,
+
+        shippingAddress:
+          shippingAddress.address,
+
+        shippingPostalCode:
+          shippingAddress.postalCode,
+
+        shippingCity:
+          shippingAddress.city,
+
+        shippingCountry:
+          shippingAddress.country,
+        
+        userId: req.user.id,
 
         items: {
           create: items.map((item) => ({
@@ -260,7 +286,6 @@ app.post("/api/orders", async (req, res) => {
       },
 
       include: {
-        customer: true,
         items: true
       }
     });
@@ -273,6 +298,234 @@ app.post("/api/orders", async (req, res) => {
       error: "Failed to create order"
     });
   }
+});
+
+app.get("/api/orders", authGuard, async (req, res) => {
+  try {
+    const orders =
+      await prisma.order.findMany({
+        where: {
+          userId: req.user.id
+        },
+
+        include: {
+          items: {
+            include: {
+              product: {
+                select: {
+                  id: true,
+                  name: true,
+                  slug: true
+                }
+              }
+            }
+          }
+        },
+
+        orderBy: {
+          createdAt: "desc"
+        }
+      });
+
+    res.json(orders);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Failed to fetch orders"
+    });
+  }
+});
+
+app.get("/api/orders/:id", authGuard, async (req, res) => {
+  try {
+    const orderId = Number(req.params.id);
+
+    if (!Number.isInteger(orderId)) {
+      return res.status(400).json({
+        error: "Invalid order id"
+      });
+    }
+
+    const order = await prisma.order.findFirst({
+      where: {
+        id: orderId,
+        userId: req.user.id
+      },
+
+      include: {
+        items: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                name: true,
+                slug: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        error: "Order not found"
+      });
+    }
+
+    res.json(order);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Failed to fetch order"
+    });
+  }
+});
+
+app.post("/api/auth/register", async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        error: "Name, email and password are required"
+      });
+    }
+
+    if (password.length < 8) {
+      return res.status(400).json({
+        error: "Password must contain at least 8 characters"
+      });
+    }
+
+    const existingUser = await prisma.user.findUnique({
+      where: {
+        email: email.toLowerCase()
+      }
+    });
+
+    if (existingUser) {
+      return res.status(409).json({
+        error: "Email already registered"
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email: email.toLowerCase(),
+        passwordHash
+      }
+    });
+
+    res.status(201).json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Failed to register"
+    });
+  }
+});
+
+app.post("/api/auth/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await prisma.user.findUnique({
+      where: {
+        email: email.toLowerCase()
+      }
+    });
+
+    if (!user) {
+      return res.status(401).json({
+        error: "Invalid email or password"
+      });
+    }
+
+    const validPassword = await bcrypt.compare(
+      password,
+      user.passwordHash
+    );
+
+    if (!validPassword) {
+      return res.status(401).json({
+        error: "Invalid email or password"
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+        role: user.role
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d"
+      }
+    );
+
+    res.cookie("auth_token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false,
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    res.json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Failed to login"
+    });
+  }
+});
+
+app.post("/api/auth/logout", (req, res) => {
+  res.clearCookie("auth_token");
+
+  res.json({
+    success: true
+  });
+});
+
+app.get("/api/auth/me", authGuard, async (req, res) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: req.user.id
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true
+    }
+  });
+
+  if (!user) {
+    return res.status(404).json({
+      error: "User not found"
+    });
+  }
+
+  res.json(user);
 });
 
 app.listen(PORT, "0.0.0.0", () => {
