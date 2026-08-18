@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { addToCart } from "../../../lib/cart";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -13,6 +14,7 @@ export default function ProductPage({ params }) {
   const [keys, setKeys] = useState(1);
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedFont, setSelectedFont] = useState(null);
+  const [addedToCart, setAddedToCart] = useState(false);
 
   useEffect(() => {
     async function loadProduct() {
@@ -46,7 +48,7 @@ export default function ProductPage({ params }) {
         setLoading(false);
       }
     }
-
+  
     loadProduct();
   }, []);
 
@@ -57,6 +59,42 @@ export default function ProductPage({ params }) {
   if (!product) {
     return <main>Product not found.</main>;
   }
+
+    function handleAddToCart() {
+      if (!selectedColor || !selectedFont) {
+        return;
+      }
+
+      addToCart({
+        productId: product.id,
+        slug: product.slug,
+        name: product.name,
+
+        quantity: 1,
+
+        keys,
+
+        color: {
+          id: selectedColor.id,
+          name: selectedColor.name,
+          hex: selectedColor.hex
+        },
+
+        font: {
+          id: selectedFont.id,
+          name: selectedFont.name,
+          bordered: selectedFont.bordered
+        },
+
+        unitPrice: Number(product.basePrice)
+      });
+
+      setAddedToCart(true);
+
+      setTimeout(() => {
+        setAddedToCart(false);
+      }, 2000);
+    }
 
   return (
     <main
@@ -231,6 +269,7 @@ export default function ProductPage({ params }) {
           </p>
 
           <button
+            onClick={handleAddToCart}
             style={{
               width: "100%",
               padding: "16px",
@@ -243,7 +282,7 @@ export default function ProductPage({ params }) {
               cursor: "pointer"
             }}
           >
-            Add to Cart
+            {addedToCart ? "Added to Cart ✓" : "Add to Cart"}
           </button>
         </div>
       </div>
