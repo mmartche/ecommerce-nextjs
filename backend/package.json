@@ -1,0 +1,16 @@
+{
+  "name": "ecommerce-api",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.15.0",
+    "cors": "2.8.5",
+    "express": "5.1.0"
+  },
+  "devDependencies": {
+    "prisma": "^6.15.0"
+  }
+}
