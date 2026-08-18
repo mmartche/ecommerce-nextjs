@@ -191,6 +191,90 @@ app.post("/api/products", async (req, res) => {
   }
 });
 
+app.post("/api/orders", async (req, res) => {
+  try {
+    const {
+      customer,
+      items,
+      shipping = 0
+    } = req.body;
+
+    if (!customer?.name || !customer?.email) {
+      return res.status(400).json({
+        error: "Customer name and email are required"
+      });
+    }
+
+    if (!items || items.length === 0) {
+      return res.status(400).json({
+        error: "Order must contain at least one item"
+      });
+    }
+
+    const subtotal = items.reduce(
+      (total, item) =>
+        total +
+        Number(item.unitPrice) * Number(item.quantity),
+      0
+    );
+
+    const total = subtotal + Number(shipping);
+
+    const order = await prisma.order.create({
+      data: {
+        subtotal,
+        shipping,
+        total,
+
+        customer: {
+          create: {
+            name: customer.name,
+            email: customer.email,
+            phone: customer.phone || null,
+            address: customer.address || null,
+            postalCode: customer.postalCode || null,
+            city: customer.city || null,
+            country: customer.country || "Portugal"
+          }
+        },
+
+        items: {
+          create: items.map((item) => ({
+            quantity: item.quantity,
+            keys: item.keys,
+
+            colorName: item.color?.name || null,
+            colorHex: item.color?.hex || null,
+
+            fontName: item.font?.name || null,
+            bordered: item.font?.bordered || false,
+
+            unitPrice: Number(item.unitPrice),
+            totalPrice:
+              Number(item.unitPrice) *
+              Number(item.quantity),
+
+            productId: item.productId
+          }))
+        }
+      },
+
+      include: {
+        customer: true,
+        items: true
+      }
+    });
+
+    res.status(201).json(order);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Failed to create order"
+    });
+  }
+});
+
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`API running on port ${PORT}`);
 });
