@@ -36,16 +36,40 @@ app.get("/health", async (req, res) => {
 app.get("/api/products", async (req, res) => {
   try {
     const products = await prisma.product.findMany({
-      include: {
-        colors: true,
-        fonts: true
+      where: {
+        active: true
       },
+
+      include: {
+        colors: {
+          include: {
+            color: true
+          }
+        },
+
+        fonts: {
+          include: {
+            font: true
+          }
+        },
+
+        images: true
+      },
+
       orderBy: {
         createdAt: "desc"
       }
     });
 
-    res.json(products);
+    const response = products.map((product) => ({
+      ...product,
+
+      colors: product.colors.map((item) => item.color),
+
+      fonts: product.fonts.map((item) => item.font)
+    }));
+
+    res.json(response);
   } catch (error) {
     console.error(error);
 
@@ -65,8 +89,17 @@ app.get("/api/products/:slug", async (req, res) => {
         slug: req.params.slug
       },
       include: {
-        colors: true,
-        fonts: true
+        colors: {
+          include: {
+            color: true
+          }
+        },
+        fonts: {
+          include: {
+            font: true
+          }
+        },
+        images: true
       }
     });
 
@@ -76,7 +109,15 @@ app.get("/api/products/:slug", async (req, res) => {
       });
     }
 
-    res.json(product);
+    const response = {
+      ...product,
+
+      colors: product.colors.map((item) => item.color),
+
+      fonts: product.fonts.map((item) => item.font)
+    };
+
+    res.json(response);
   } catch (error) {
     console.error(error);
 
