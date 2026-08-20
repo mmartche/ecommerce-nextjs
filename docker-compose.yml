@@ -33,6 +33,7 @@ services:
     volumes:
       - ./backend/src:/app/src
       - ./backend/prisma:/app/prisma
+      - ./backend/uploads:/app/uploads
     ports:
       - "4000:4000"
     depends_on:

@@ -93,6 +93,18 @@ export default function Header() {
                 Admin
               </Link>
             )}
+          {!loading &&
+            user?.role === "ADMIN" && (
+              <Link
+                href="/admin/products"
+                style={{
+                  textDecoration: "none",
+                  color: "#111",
+                  fontWeight: "600"
+                }}>
+                | Products |
+              </Link>
+            )}
         </nav>
       </div>
     </header>

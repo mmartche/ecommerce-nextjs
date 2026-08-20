@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { imageUrl } from "../lib/imageUrl";
 
 const API_URL =
   process.env.API_URL || "http://api:4000";
@@ -69,7 +70,23 @@ export default async function Home() {
                   justifyContent: "center"
                 }}
               >
-                Product Image
+                {product.images?.[0] && (
+                  <img
+                    src={imageUrl(
+                      product.images[0].url
+                    )}
+                    alt={
+                      product.images[0].alt ||
+                      product.name
+                    }
+                    style={{
+                      width: "100%",
+                      height: "250px",
+                      objectFit: "cover",
+                      borderRadius: "12px",
+                    }}
+                  />
+                )}
               </div>
 
               <h2>{product.name}</h2>

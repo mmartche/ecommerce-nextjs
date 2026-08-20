@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { addToCart } from "../../../lib/cart";
+import { imageUrl } from "../../../lib/imageUrl";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -15,6 +16,7 @@ export default function ProductPage({ params }) {
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedFont, setSelectedFont] = useState(null);
   const [addedToCart, setAddedToCart] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(0);
 
   useEffect(() => {
     async function loadProduct() {
@@ -48,9 +50,13 @@ export default function ProductPage({ params }) {
         setLoading(false);
       }
     }
-  
+
     loadProduct();
   }, []);
+
+  useEffect(() => {
+    setSelectedImage(0);
+  }, [product?.id]);
 
   if (loading) {
     return <main>Loading...</main>;
@@ -60,41 +66,66 @@ export default function ProductPage({ params }) {
     return <main>Product not found.</main>;
   }
 
-    function handleAddToCart() {
-      if (!selectedColor || !selectedFont) {
-        return;
+  function handleAddToCart() {
+    if (!selectedColor || !selectedFont) {
+      return;
+    }
+
+    addToCart({
+      productId: product.id,
+      slug: product.slug,
+      name: product.name,
+
+      quantity: 1,
+
+      keys,
+
+      color: {
+        id: selectedColor.id,
+        name: selectedColor.name,
+        hex: selectedColor.hex
+      },
+
+      font: {
+        id: selectedFont.id,
+        name: selectedFont.name,
+        bordered: selectedFont.bordered
+      },
+
+      unitPrice: Number(product.basePrice)
+    });
+
+    setAddedToCart(true);
+
+    setTimeout(() => {
+      setAddedToCart(false);
+    }, 2000);
+  }
+
+  function previousImage() {
+    setSelectedImage((current) => {
+      if (!product?.images?.length) {
+        return 0;
       }
 
-      addToCart({
-        productId: product.id,
-        slug: product.slug,
-        name: product.name,
+      return current === 0
+        ? product.images.length - 1
+        : current - 1;
+    });
+  }
 
-        quantity: 1,
+  function nextImage() {
+    setSelectedImage((current) => {
+      if (!product?.images?.length) {
+        return 0;
+      }
 
-        keys,
-
-        color: {
-          id: selectedColor.id,
-          name: selectedColor.name,
-          hex: selectedColor.hex
-        },
-
-        font: {
-          id: selectedFont.id,
-          name: selectedFont.name,
-          bordered: selectedFont.bordered
-        },
-
-        unitPrice: Number(product.basePrice)
-      });
-
-      setAddedToCart(true);
-
-      setTimeout(() => {
-        setAddedToCart(false);
-      }, 2000);
-    }
+      return current ===
+        product.images.length - 1
+        ? 0
+        : current + 1;
+    });
+  }
 
   return (
     <main
@@ -122,7 +153,95 @@ export default function ProductPage({ params }) {
             justifyContent: "center"
           }}
         >
-          <span>Product Image</span>
+          <div
+
+          >
+            {product.images?.length > 0 && (
+              <div style={styles.gallery}>
+                <div style={styles.mainImageWrapper}>
+                  <img
+                    src={imageUrl(
+                      product.images[selectedImage].url
+                    )}
+                    alt={
+                      product.images[selectedImage].alt ||
+                      product.name
+                    }
+                    style={styles.mainImage}
+                  />
+
+                  {product.images.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={previousImage}
+                        aria-label="Previous image"
+                        style={{
+                          ...styles.arrowButton,
+                          left: "14px",
+                        }}
+                      >
+                        ‹
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={nextImage}
+                        aria-label="Next image"
+                        style={{
+                          ...styles.arrowButton,
+                          right: "14px",
+                        }}
+                      >
+                        ›
+                      </button>
+
+                      <div style={styles.imageCounter}>
+                        {selectedImage + 1} /{" "}
+                        {product.images.length}
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {product.images.length > 1 && (
+                  <div style={styles.thumbnails}>
+                    {product.images.map(
+                      (image, index) => (
+                        <button
+                          key={image.id ?? index}
+                          type="button"
+                          onClick={() =>
+                            setSelectedImage(index)
+                          }
+                          aria-label={`View image ${index + 1
+                            }`}
+                          style={{
+                            ...styles.thumbnailButton,
+
+                            border:
+                              selectedImage === index
+                                ? "2px solid #111"
+                                : "1px solid #ddd",
+                          }}
+                        >
+                          <img
+                            src={imageUrl(image.url)}
+                            alt={
+                              image.alt ||
+                              `${product.name} ${index + 1
+                              }`
+                            }
+                            style={styles.thumbnailImage}
+                          />
+                        </button>
+                      )
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         <div>
@@ -288,4 +407,91 @@ export default function ProductPage({ params }) {
       </div>
     </main>
   );
+}
+
+const styles = {
+  gallery: {
+    width: "100%",
+  },
+
+  mainImageWrapper: {
+    position: "relative",
+    width: "100%",
+    borderRadius: "16px",
+    overflow: "hidden",
+    background: "#f5f5f5",
+  },
+
+  mainImage: {
+    display: "block",
+    width: "100%",
+    aspectRatio: "1 / 1",
+    objectFit: "contain",
+  },
+
+  arrowButton: {
+    position: "absolute",
+    top: "50%",
+    transform: "translateY(-50%)",
+
+    width: "44px",
+    height: "44px",
+
+    border: "none",
+    borderRadius: "50%",
+
+    background: "rgba(255,255,255,0.9)",
+
+    fontSize: "32px",
+    lineHeight: "40px",
+
+    cursor: "pointer",
+  },
+
+  imageCounter: {
+    position: "absolute",
+    right: "14px",
+    bottom: "14px",
+
+    padding: "6px 10px",
+
+    borderRadius: "20px",
+
+    background: "rgba(0,0,0,0.65)",
+    color: "#fff",
+
+    fontSize: "13px",
+  },
+
+  thumbnails: {
+    display: "flex",
+    gap: "10px",
+    marginTop: "12px",
+    overflowX: "auto",
+    paddingBottom: "4px",
+  },
+
+  thumbnailButton: {
+    flex: "0 0 82px",
+
+    width: "82px",
+    height: "82px",
+
+    padding: "3px",
+
+    borderRadius: "10px",
+
+    background: "#fff",
+
+    cursor: "pointer",
+  },
+
+  thumbnailImage: {
+    width: "100%",
+    height: "100%",
+
+    objectFit: "cover",
+
+    borderRadius: "7px",
+  },
 }

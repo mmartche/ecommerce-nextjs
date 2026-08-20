@@ -1,9 +1,8 @@
 FROM node:22-alpine
 WORKDIR /app
-COPY package.json .
+COPY package*.json ./
 RUN npm install
-COPY prisma ./prisma
+COPY . .
 RUN npx prisma generate
-COPY src ./src
 EXPOSE 4000
-CMD ["npm", "start"]
+CMD ["npm", "run", "start:dev"]
