@@ -46,6 +46,10 @@ class OrderItemDto {
   @Min(1)
   keys: number;
 
+  @IsOptional()
+  @IsString()
+  characters?: string;
+
   @ValidateNested()
   @Type(() => OrderColorDto)
   color: OrderColorDto;
@@ -89,4 +93,5 @@ export class CreateOrderDto {
   @ValidateNested()
   @Type(() => ShippingAddressDto)
   shippingAddress: ShippingAddressDto;
+
 }

@@ -24,7 +24,7 @@ export class OrdersService {
 
     private readonly shippingService:
       ShippingService,
-  ) {}
+  ) { }
 
   async create(
     userId: number,
@@ -41,11 +41,6 @@ export class OrdersService {
       ),
     ];
 
-    /*
-     * IMPORTANT:
-     * Prices come from PostgreSQL,
-     * never from the browser.
-     */
     const products =
       await this.prisma.product.findMany({
         where: {
@@ -60,6 +55,10 @@ export class OrdersService {
           id: true,
           name: true,
           basePrice: true,
+          pricePerKey: true,
+          weightGrams: true,
+          baseWeightGrams: true,
+          weightPerKeyGrams: true,
           minKeys: true,
           maxKeys: true,
         },
@@ -75,12 +74,10 @@ export class OrdersService {
         ),
       );
 
-    /*
-     * Validate products and
-     * calculate subtotal.
-     */
     let subtotal =
       new Prisma.Decimal(0);
+
+    let totalWeightGrams = 0;
 
     const orderItems =
       dto.items.map((item) => {
@@ -95,19 +92,69 @@ export class OrdersService {
           );
         }
 
-        if (
-          item.keys < product.minKeys ||
-          item.keys > product.maxKeys
-        ) {
-          throw new BadRequestException(
-            `Invalid number of keys for ${product.name}`,
+        const characters =
+          item.characters?.trim() || "";
+
+        /*
+         * Produto personalizado por teclas
+         */
+        const hasKeyConfiguration =
+          product.pricePerKey != null ||
+          (
+            product.baseWeightGrams != null &&
+            product.weightPerKeyGrams != null
           );
+
+        let keys = 0;
+
+        if (hasKeyConfiguration) {
+          keys = characters.length;
+
+          if (!characters) {
+            throw new BadRequestException(
+              `Characters are required for ${product.name}`,
+            );
+          }
+
+          if (
+            item.keys !== keys
+          ) {
+            throw new BadRequestException(
+              'Number of keys does not match characters',
+            );
+          }
+
+          if (
+            keys < product.minKeys ||
+            keys > product.maxKeys
+          ) {
+            throw new BadRequestException(
+              `Invalid number of keys for ${product.name}`,
+            );
+          }
         }
 
-        const unitPrice =
+        /*
+         * PRICE
+         */
+        const basePrice =
           new Prisma.Decimal(
             product.basePrice,
           );
+
+        const pricePerKey =
+          product.pricePerKey != null
+            ? new Prisma.Decimal(
+              product.pricePerKey,
+            )
+            : new Prisma.Decimal(0);
+
+        const unitPrice =
+          product.pricePerKey != null
+            ? basePrice.add(
+              pricePerKey.mul(keys),
+            )
+            : basePrice;
 
         const totalPrice =
           unitPrice.mul(
@@ -115,30 +162,60 @@ export class OrdersService {
           );
 
         subtotal =
-          subtotal.add(totalPrice);
+          subtotal.add(
+            totalPrice,
+          );
+
+        let unitWeightGrams: number;
+
+        if (
+          product.baseWeightGrams != null &&
+          product.weightPerKeyGrams != null
+        ) {
+          unitWeightGrams =
+            product.baseWeightGrams +
+            product.weightPerKeyGrams *
+            keys;
+        } else if (
+          product.weightGrams != null
+        ) {
+          unitWeightGrams =
+            product.weightGrams;
+        } else {
+          throw new BadRequestException(
+            `Weight is not configured for ${product.name}`,
+          );
+        }
+
+        totalWeightGrams +=
+          unitWeightGrams *
+          item.quantity;
 
         return {
           quantity:
             item.quantity,
 
           keys:
-            item.keys,
+            hasKeyConfiguration
+              ? keys
+              : item.keys ?? 1,
+
+          characters:
+            characters || null,
 
           colorName:
-            item.color?.name ??
-            null,
+            item.color?.name ?? null,
 
           colorHex:
-            item.color?.hex ??
-            null,
+            item.color?.hex ?? null,
 
           fontName:
-            item.font?.name ??
-            null,
+            item.font?.name ?? null,
 
           bordered:
-            item.font?.bordered ??
-            false,
+            item.font?.bordered ?? false,
+          
+          unitWeightGrams,
 
           unitPrice,
           totalPrice,
@@ -147,29 +224,10 @@ export class OrdersService {
             item.productId,
         };
       });
-
-    /*
-     * TEMPORARY weight calculation.
-     *
-     * Later we'll use Product.weightGrams.
-     */
-    const weightGrams =
-      dto.items.reduce(
-        (total, item) =>
-          total +
-          250 * item.quantity,
-        0,
-      );
-
-    /*
-     * Shipping is also calculated
-     * by the backend.
-     */
     const shippingQuote =
       this.shippingService.calculate(
-        dto.shippingAddress
-          .postalCode,
-        weightGrams,
+        dto.shippingAddress.postalCode,
+        totalWeightGrams,
       );
 
     const shipping =
@@ -180,10 +238,6 @@ export class OrdersService {
     const total =
       subtotal.add(shipping);
 
-    /*
-     * Nested create:
-     * Order + OrderItems in one operation.
-     */
     return this.prisma.order.create({
       data: {
         status: 'PENDING',
@@ -191,6 +245,13 @@ export class OrdersService {
         subtotal,
         shipping,
         total,
+        totalWeightGrams,
+
+        shippingProvider:
+          shippingQuote.provider,
+
+        shippingService:
+          shippingQuote.service,
 
         shippingName:
           dto.shippingAddress.name,

@@ -28,7 +28,7 @@ export class ShippingController {
   ) {
     return this.shippingService.calculate(
       dto.postalCode,
-      dto.weightGrams ?? 250,
+      dto.weightGrams,
     );
   }
 }

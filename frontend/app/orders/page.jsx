@@ -202,7 +202,40 @@ export default function OrdersPage() {
                                 )
                             )}
                         </div>
+                        <div>
+                            <strong>Payment</strong>
+                            <div>
+                                <p>
+                                    {order.paymentMethod || "—"}
+                                </p>
 
+                                <p>Payment status{" "}
+                                    {order.paymentStatus}
+                                </p>
+                            </div>
+                        </div>
+                        {order.trackingCode && (
+                            <section>
+                                <h3>Tracking</h3>
+
+                                <p>
+                                    Tracking code:{" "}
+                                    <strong>
+                                        {order.trackingCode}
+                                    </strong>
+                                </p>
+
+                                {order.trackingUrl && (
+                                    <a
+                                        href={order.trackingUrl}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                    >
+                                        Track shipment
+                                    </a>
+                                )}
+                            </section>
+                        )}
                         <div style={styles.total}>
                             <span>Total</span>
 

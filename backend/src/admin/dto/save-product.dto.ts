@@ -50,6 +50,21 @@ export class SaveProductDto {
   basePrice: number;
 
   @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  pricePerKey: number;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  baseWeightGrams: number;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  weightPerKeyGrams: number;
+
+  @Type(() => Number)
   @IsInt()
   @Min(1)
   minKeys: number;
@@ -61,6 +76,11 @@ export class SaveProductDto {
 
   @IsBoolean()
   active: boolean;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  weightGrams: number;
 
   @IsArray()
   @ArrayMinSize(1)

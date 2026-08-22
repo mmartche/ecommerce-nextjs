@@ -12,6 +12,7 @@ import {
 } from "next/navigation";
 
 import { useAuth } from "../../../../context/AuthContext";
+import { formatWeight } from "../../../../lib/formatWeight";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -35,17 +36,17 @@ export default function AdminOrderPage() {
     loading: authLoading,
   } = useAuth();
 
-  const [order, setOrder] =
-    useState(null);
+  const [order, setOrder] = useState(null);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [loading, setLoading] = useState(true);
 
-  const [saving, setSaving] =
-    useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const [error, setError] =
-    useState("");
+  const [error, setError] = useState("");
+
+  const [trackingCode, setTrackingCode] = useState("");
+
+  const [trackingUrl, setTrackingUrl] = useState("");
 
   useEffect(() => {
     if (authLoading) {
@@ -85,11 +86,14 @@ export default function AdminOrderPage() {
       const data =
         await response.json();
 
+      setTrackingCode(data.trackingCode || "");
+      setTrackingUrl(data.trackingUrl || "");
+
       if (!response.ok) {
         throw new Error(
           data.message ||
-            data.error ||
-            "Failed to load order"
+          data.error ||
+          "Failed to load order"
         );
       }
 
@@ -124,6 +128,7 @@ export default function AdminOrderPage() {
             status,
           }),
         }
+
       );
 
       const data =
@@ -132,8 +137,8 @@ export default function AdminOrderPage() {
       if (!response.ok) {
         throw new Error(
           data.message ||
-            data.error ||
-            "Failed to update status"
+          data.error ||
+          "Failed to update status"
         );
       }
 
@@ -146,6 +151,41 @@ export default function AdminOrderPage() {
     } finally {
       setSaving(false);
     }
+  }
+
+  async function saveTracking() {
+    const response = await fetch(
+      `${API_URL}/api/admin/orders/${order.id}/tracking`,
+      {
+        method: "PATCH",
+        credentials: "include",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+
+        body: JSON.stringify({
+          trackingCode,
+          trackingUrl:
+            trackingUrl || undefined,
+        }),
+      }
+    );
+
+    const data =
+      await response.json();
+
+    if (!response.ok) {
+      alert(
+        data.message ||
+        "Failed to save tracking"
+      );
+
+      return;
+    }
+
+    setOrder(data);
   }
 
   if (
@@ -286,11 +326,15 @@ export default function AdminOrderPage() {
             >
               <div>
                 <strong>
-                  {
-                    item.product
-                      .name
-                  }
+                  {item.product.name}
                 </strong>
+
+                {item.characters && (
+                  <p>
+                    <strong>Characters:</strong>{" "}
+                    {item.characters}
+                  </p>
+                )}
 
                 <p>
                   Quantity:{" "}
@@ -325,7 +369,54 @@ export default function AdminOrderPage() {
         )}
       </section>
 
+      <section style={styles.card}>
+        <h3>Shipping tracking</h3>
+
+        <input
+          value={trackingCode}
+          onChange={(e) =>
+            setTrackingCode(
+              e.target.value
+            )
+          }
+          placeholder="Tracking code"
+        />
+
+        <input
+          value={trackingUrl}
+          onChange={(e) =>
+            setTrackingUrl(
+              e.target.value
+            )
+          }
+          placeholder="Tracking URL"
+        />
+
+        <button
+          onClick={saveTracking}
+        >
+          Save tracking
+        </button>
+      </section>
+
       <section style={styles.summary}>
+        <p>
+          Weight:{" "}
+          <strong>
+            {formatWeight(
+              order.totalWeightGrams
+            )}
+          </strong>
+        </p>
+
+        <p>
+          Shipping service:{" "}
+          <strong>
+            {order.shippingProvider || "—"}{" "}
+            {order.shippingService || ""}
+          </strong>
+        </p>
+
         <p>
           Subtotal: €
           {Number(
@@ -347,6 +438,8 @@ export default function AdminOrderPage() {
           ).toFixed(2)}
         </h2>
       </section>
+
+
     </main>
   );
 }

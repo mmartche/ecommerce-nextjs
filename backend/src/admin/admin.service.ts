@@ -251,10 +251,23 @@ export class AdminService {
               dto.basePrice,
             ),
 
+          pricePerKey:
+            new Prisma.Decimal(
+              dto.pricePerKey,
+            ),
+
+          baseWeightGrams:
+            dto.baseWeightGrams,
+
+          weightPerKeyGrams:
+            dto.weightPerKeyGrams,
+
           minKeys: dto.minKeys,
           maxKeys: dto.maxKeys,
 
           active: dto.active,
+
+          weightGrams: dto.weightGrams,
 
           colors: {
             create:
@@ -389,10 +402,23 @@ export class AdminService {
                 dto.basePrice,
               ),
 
+            pricePerKey:
+              new Prisma.Decimal(
+                dto.pricePerKey,
+              ),
+
+            baseWeightGrams:
+              dto.baseWeightGrams,
+
+            weightPerKeyGrams:
+              dto.weightPerKeyGrams,
+
             minKeys: dto.minKeys,
             maxKeys: dto.maxKeys,
 
             active: dto.active,
+
+            weightGrams: dto.weightGrams,
 
             colors: {
               create:
@@ -545,6 +571,39 @@ export class AdminService {
           (item) => item.font,
         ),
     };
+  }
+
+  async updateOrderTracking(
+    id: number,
+    dto: UpdateOrderTrackingDto,
+  ) {
+    const order =
+      await this.prisma.order.findUnique({
+        where: { id },
+      });
+
+    if (!order) {
+      throw new NotFoundException(
+        "Order not found"
+      );
+    }
+
+    return this.prisma.order.update({
+      where: { id },
+
+      data: {
+        trackingCode:
+          dto.trackingCode,
+
+        trackingUrl:
+          dto.trackingUrl || null,
+
+        status: "SHIPPED",
+
+        shippedAt:
+          new Date(),
+      },
+    });
   }
 
 }

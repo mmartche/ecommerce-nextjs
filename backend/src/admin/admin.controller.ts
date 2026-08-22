@@ -31,6 +31,9 @@ import {
   UpdateProductActiveDto,
 } from './dto/update-product-active.dto';
 
+import { UpdateOrderTrackingDto }
+  from "./dto/update-order-tracking.dto";
+
 @Controller('api/admin')
 @UseGuards(
   JwtAuthGuard,
@@ -147,5 +150,17 @@ export class AdminController {
         id,
         dto.active,
       );
+  }
+
+  @Patch("orders/:id/tracking")
+  updateOrderTracking(
+    @Param("id", ParseIntPipe)
+    id: number,
+
+    @Body()
+    dto: UpdateOrderTrackingDto,
+  ) {
+    return this.adminService
+      .updateOrderTracking(id, dto);
   }
 }

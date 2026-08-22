@@ -12,12 +12,18 @@ model Product {
   name        String
   slug        String   @unique
   description String
+
   basePrice   Decimal  @db.Decimal(10, 2)
+  pricePerKey Decimal  @default(0) @db.Decimal(10, 2)
 
   minKeys     Int      @default(1)
   maxKeys     Int      @default(52)
 
   active      Boolean  @default(true)
+
+  baseWeightGrams   Int @default(0)
+  weightGrams Int      @default(1)
+  weightPerKeyGrams Int @default(0)
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -112,11 +118,26 @@ model Order {
 
   items       OrderItem[]
 
+  totalWeightGrams Int
+
   shippingName       String
   shippingAddress    String
   shippingPostalCode String
   shippingCity       String
   shippingCountry    String @default("Portugal")
+  
+  shippingProvider String?
+  shippingService  String?
+  
+  paymentProvider  String?
+  paymentMethod    String?
+  paymentReference String?
+  paymentStatus    PaymentStatus @default(PENDING)
+  paidAt           DateTime?
+
+  trackingCode  String?
+  trackingUrl   String?
+  shippedAt     DateTime?
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -124,17 +145,18 @@ model Order {
 
 model OrderItem {
   id          Int      @id @default(autoincrement())
-
   quantity    Int      @default(1)
 
   keys        Int
+  characters  String?
 
   colorName   String?
   colorHex    String?
 
   fontName    String?
   bordered    Boolean @default(false)
-
+  
+  unitWeightGrams Int?
   unitPrice   Decimal  @db.Decimal(10, 2)
   totalPrice  Decimal  @db.Decimal(10, 2)
 
@@ -170,4 +192,45 @@ model User {
 enum UserRole {
   CUSTOMER
   ADMIN
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+model PostalCode {
+  id Int @id @default(autoincrement())
+
+  districtCode String
+  countyCode   String
+  localityCode String
+  locality     String
+
+  streetCode String?
+  streetType String?
+  streetPreposition String?
+  streetTitle String?
+  streetPreposition2 String?
+  streetName String?
+
+  extra1 String?
+  extra2 String?
+  extra3 String?
+  extra4 String?
+
+  postalCode4 String
+  postalCode3 String
+  postalDesignation String
+
+  rawLine String?
+
+  createdAt DateTime @default(now())
+
+  @@index([postalCode4, postalCode3])
+  @@index([locality])
+  @@index([streetCode])
 }

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
 import { useAuth } from "../../../context/AuthContext";
+import { formatWeight } from "../../../lib/formatWeight";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -160,6 +161,13 @@ export default function OrderDetailsPage() {
                 </strong>
               </Link>
 
+              {item.characters && (
+                <p>
+                  <strong>Characters:</strong>{" "}
+                  {item.characters}
+                </p>
+              )}
+
               <p>
                 Keys: {item.keys}
               </p>
@@ -214,7 +222,20 @@ export default function OrderDetailsPage() {
           </div>
         ))}
       </section>
+      <section style={styles.card}>
+        <div>
+          <h2>Payment</h2>
+          <div style={styles.item}>
+            <p>
+              {order.paymentMethod || "—"}
+            </p>
 
+            <p>Payment status{" "}
+              {order.paymentStatus}
+            </p>
+          </div>
+        </div>
+      </section>
       <section style={styles.summary}>
         <div>
           <span>Subtotal</span>
@@ -228,7 +249,28 @@ export default function OrderDetailsPage() {
         </div>
 
         <div>
+          <span>
+            Weight
+          </span>
+
+          <span>
+            {formatWeight(
+              order.totalWeightGrams
+            )}
+          </span>
+        </div>
+
+        <div>
           <span>Shipping</span>
+
+          <div>
+            <span>Shipping service</span>
+
+            <span>
+              {order.shippingProvider}{" "}
+              {order.shippingService}
+            </span>
+          </div>
 
           <span>
             €

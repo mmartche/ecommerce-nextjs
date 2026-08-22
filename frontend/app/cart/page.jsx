@@ -10,6 +10,8 @@ import {
   clearCart
 } from "../../lib/cart";
 
+import { formatWeight } from "../../lib/formatWeight";
+
 export default function CartPage() {
   const [cart, setCart] = useState([]);
 
@@ -55,7 +57,16 @@ export default function CartPage() {
   const subtotal = cart.reduce(
     (total, item) =>
       total +
-      Number(item.unitPrice) * item.quantity,
+      Number(item.unitPrice || 0) *
+      Number(item.quantity || 1),
+    0
+  );
+
+  const totalWeightGrams = cart.reduce(
+    (total, item) =>
+      total +
+      Number(item.weightGrams || 0) *
+      Number(item.quantity || 1),
     0
   );
 
@@ -147,6 +158,13 @@ export default function CartPage() {
                 </h2>
               </Link>
 
+              {item.characters && (
+                <p>
+                  <strong>Characters:</strong>{" "}
+                  {item.characters}
+                </p>
+              )}
+
               <p>
                 <strong>Keys:</strong>{" "}
                 {item.keys}
@@ -180,12 +198,18 @@ export default function CartPage() {
                   : " — Without Border"}
               </p>
 
-              <strong>
+              <p>
+                <strong>Weight:{" "}</strong>
+                {item.weightGrams} g
+              </p>
+
+              <p>
+                <strong>Item Total:{" "}</strong>
                 €
                 {Number(
                   item.unitPrice
                 ).toFixed(2)}
-              </strong>
+              </p>
             </div>
 
             <div
@@ -252,6 +276,8 @@ export default function CartPage() {
         ))}
       </div>
 
+
+
       <section
         style={{
           marginTop: "40px",
@@ -259,6 +285,21 @@ export default function CartPage() {
           paddingTop: "30px"
         }}
       >
+        <div
+          style={{
+            display: "flex",
+            justifyContent:
+              "space-between",
+          }}
+        >
+          <span>Total weight:{" "}</span>
+          <span>
+            {formatWeight(
+              totalWeightGrams
+            )}
+          </span>
+
+        </div>
         <div
           style={{
             display: "flex",

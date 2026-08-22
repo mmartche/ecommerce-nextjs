@@ -12,11 +12,27 @@ export default function ProductPage({ params }) {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const [keys, setKeys] = useState(1);
+  // const [keys, setKeys] = useState(1);
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedFont, setSelectedFont] = useState(null);
   const [addedToCart, setAddedToCart] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [characters, setCharacters] = useState("");
+
+  const keys = characters.length;
+
+  const calculatedUnitPrice =
+    Number(product?.basePrice || 0) +
+    Number(product?.pricePerKey || 0) *
+    keys;
+
+  const calculatedWeightGrams =
+    product?.baseWeightGrams != null &&
+      product?.weightPerKeyGrams != null
+      ? Number(product.baseWeightGrams) +
+      Number(product.weightPerKeyGrams) *
+      keys
+      : Number(product?.weightGrams || 0);
 
   useEffect(() => {
     async function loadProduct() {
@@ -43,7 +59,7 @@ export default function ProductPage({ params }) {
           setSelectedFont(data.fonts[0]);
         }
 
-        setKeys(data.minKeys);
+        // setKeys(data.minKeys);
       } catch (error) {
         console.error(error);
       } finally {
@@ -71,13 +87,19 @@ export default function ProductPage({ params }) {
       return;
     }
 
+    if (keys < product.minKeys || keys > product.maxKeys) {
+      return;
+    }
+
     addToCart({
       productId: product.id,
       slug: product.slug,
       name: product.name,
 
       quantity: 1,
+      weightGrams: calculatedWeightGrams,
 
+      characters,
       keys,
 
       color: {
@@ -92,7 +114,7 @@ export default function ProductPage({ params }) {
         bordered: selectedFont.bordered
       },
 
-      unitPrice: Number(product.basePrice)
+      unitPrice: calculatedUnitPrice
     });
 
     setAddedToCart(true);
@@ -250,38 +272,13 @@ export default function ProductPage({ params }) {
           <p>{product.description}</p>
 
           <h2>
-            €{Number(product.basePrice).toFixed(2)}
+            €{calculatedUnitPrice.toFixed(2)}
           </h2>
 
           <hr />
 
-          <h3>Number of keys</h3>
-
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "10px"
-            }}
-          >
-            <button
-              onClick={() =>
-                setKeys(Math.max(product.minKeys, keys - 1))
-              }
-            >
-              −
-            </button>
-
-            <strong>{keys}</strong>
-
-            <button
-              onClick={() =>
-                setKeys(Math.min(product.maxKeys, keys + 1))
-              }
-            >
-              +
-            </button>
-          </div>
+          <h3>Number of keys</h3>{" "}
+          {keys}
 
           <p>
             Choose between {product.minKeys} and{" "}
@@ -367,6 +364,21 @@ export default function ProductPage({ params }) {
           </div>
 
           <hr />
+          <label>
+            Characters
+
+            <input
+              value={characters}
+              maxLength={product.maxKeys}
+              onChange={(event) =>
+                setCharacters(
+                  event.target.value
+                )
+              }
+              placeholder="e.g. MARCELO"
+            />
+          </label>
+          <hr />
 
           <h3>Selected configuration</h3>
 
@@ -387,6 +399,11 @@ export default function ProductPage({ params }) {
               : " — Without Border"}
           </p>
 
+          <p>
+            <strong>Weight:</strong>{" "}
+            {calculatedWeightGrams} g
+          </p>
+
           <button
             onClick={handleAddToCart}
             style={{
@@ -400,6 +417,10 @@ export default function ProductPage({ params }) {
               fontSize: "18px",
               cursor: "pointer"
             }}
+            disabled={
+              keys < product.minKeys ||
+              keys > product.maxKeys
+            }
           >
             {addedToCart ? "Added to Cart ✓" : "Add to Cart"}
           </button>

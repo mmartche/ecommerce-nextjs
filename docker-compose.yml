@@ -30,10 +30,13 @@ services:
       PORT: 4000
       DATABASE_URL: ${DATABASE_URL}
       JWT_SECRET: ${JWT_SECRET}
+      IFTHENPAY_MBWAY_KEY: ${IFTHENPAY_MBWAY_KEY}
+      IFTHENPAY_CALLBACK_KEY: ${IFTHENPAY_CALLBACK_KEY}
     volumes:
       - ./backend/src:/app/src
       - ./backend/prisma:/app/prisma
       - ./backend/uploads:/app/uploads
+      - ./backend/data:/app/data
     ports:
       - "4000:4000"
     depends_on:

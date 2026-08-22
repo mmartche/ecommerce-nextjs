@@ -26,6 +26,12 @@ docker logs -f ecommerce-api
 docker-compose restart api
 ```
 
+## When Update DB
+```bash
+docker-compose exec api \ npx prisma migrate dev \ --name [import_name]
+docker-compose exec api npx prisma generate
+```
+
 Open:
 - Next.js: http://localhost:3000
 - API health: http://localhost:4000/health

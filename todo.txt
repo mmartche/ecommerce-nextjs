@@ -1,0 +1,162 @@
+*. Domain
+*. Cloudflare
+*. emails transacionais: confirmação de pedido, pagamento recebido e pedido enviado.
+*. Layout
+
+1. Pagamentos reais
+- escolher gateway para MB WAY + cartão
+- criar pagamento real
+- webhook
+- atualizar paymentStatus
+- marcar Order.status = PAID
+- página de sucesso/erro
+* rever contrato com api ifthenpay 
+
+2. Frete
+- manter cálculo atual por peso
+- detectar Continente / Madeira / Açores se precisar
+- guardar prazo estimado
+- no futuro trocar cálculo local pela API CTT
+- eventualmente gerar etiqueta/rastreio
+* criar contrato com ctt e aceso a api
+
+3. Checkout
+- validar morada
+- validar CEP
+- mostrar frete automaticamente
+- método de pagamento
+- impedir finalizar sem frete válido
+- impedir pedido duplicado por clique duplo
+- página /checkout/success
+
+4. Pedidos do cliente
+- /orders
+- /orders/[id]
+- status
+- pagamento
+- frete
+- peso
+- morada
+- itens personalizados
+- tracking code quando existir
+
+5. Admin de pedidos
+- listar todos
+- filtro por status
+- busca por cliente/email
+- mudar status
+- detalhe completo
+- pagamento
+- shipping
+- tracking
+- cancelar pedido
+
+6. Admin de produtos
+- criar/editar
+- preço
+- peso
+- min/max keys
+- cores
+- fontes
+- imagens
+- upload real
+- carrossel
+- ativar/desativar
+- ordenar imagens
+- definir imagem principal
+
+7. Gestão de cores e fontes
+- hoje elas vêm do banco, mas ainda falta CRUD no Admin
+- criar cor
+- editar cor
+- filament code
+- criar/editar fonte
+- bordered / non-bordered
+- ativar/desativar opções
+
+8. Personalização do produto
+- letras/caracteres escolhidos pelo cliente
+- cor por tecla/letra se quiser permitir individualmente
+- fonte escolhida
+- border
+- quantidade de teclas
+- validar limite 1–52
+- guardar essa personalização no OrderItem
+* Esse eu acho importante adicionar ao escopo, porque hoje temos keys, cor e fonte, mas não lembro de termos fechado o armazenamento dos caracteres escolhidos.
+
+11. Stock / produção
+- stock de filamento
+- cores disponíveis
+- produto temporariamente indisponível
+- prazo de produção
+
+13. Emails
+- confirmação de conta
+- pedido recebido
+- pagamento confirmado
+- pedido enviado
+- tracking
+- recuperação de password
+
+13. Conta do utilizador
+- editar nome
+- telefone
+- morada padrão
+- trocar password
+- logout
+- recuperação de password
+
+14. Segurança
+- rate limit no login
+- validação de uploads
+- tamanho máximo
+- nomes aleatórios
+- JWT secret forte
+- cookies secure quando entrar HTTPS
+- proteção CSRF se necessário
+- validações sempre no backend
+
+16. Produção
+- domínio
+- HTTPS
+- Cloudflare Tunnel/reverse proxy
+- remover URLs 192.168...
+- .env production
+- backend e frontend em modo production
+- health checks
+- restart policy
+
+17. Raspberry / infraestrutura
+- mover Docker para SSD
+- uploads no SSD
+- backup PostgreSQL
+- backup das imagens
+- monitorar espaço em disco
+- logs com rotação
+
+18. SEO / loja pública
+- metadata por produto
+- Open Graph
+- sitemap
+- robots
+- URLs amigáveis
+- descrição/title por produto
+
+19. Legal / e-commerce Portugal
+- termos e condições
+- política de privacidade
+- cookies
+- política de devolução
+- dados da entidade/vendedor
+- tratamento de IVA/faturação conforme o teu enquadramento
+
+
+20. opcionais
+- cupões
+- promoções
+- wishlist
+- avaliações
+- dashboard de vendas
+- analytics
+- integração Etsy/Shopify
+- Solidity/Web3, se ainda fizer sentido

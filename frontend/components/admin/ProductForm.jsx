@@ -38,6 +38,10 @@ const EMPTY_FORM = {
   basePrice: "",
   minKeys: 1,
   maxKeys: 52,
+  weightGrams: 1,
+  pricePerKey: "",
+  baseWeightGrams: "",
+  weightPerKeyGrams: "",
   active: true,
   colorIds: [],
   fontIds: [],
@@ -83,12 +87,22 @@ export default function ProductForm({
         product.description || "",
       basePrice:
         product.basePrice || "",
+      pricePerKey:
+        product.pricePerKey ?? "",
+
+      baseWeightGrams:
+        product.baseWeightGrams ?? "",
+      weightPerKeyGrams:
+        product.weightPerKeyGrams ?? "",
+
       minKeys:
         product.minKeys ?? 1,
       maxKeys:
         product.maxKeys ?? 52,
       active:
         product.active ?? true,
+      weightGrams:
+        product.weightGrams ?? 1,
 
       colorIds:
         product.colors?.map(
@@ -377,6 +391,15 @@ export default function ProductForm({
         basePrice:
           Number(form.basePrice),
 
+        pricePerKey:
+          Number(form.pricePerKey),
+
+        baseWeightGrams:
+          Number(form.baseWeightGrams),
+
+        weightPerKeyGrams:
+          Number(form.weightPerKeyGrams),
+
         minKeys:
           Number(form.minKeys),
 
@@ -385,6 +408,9 @@ export default function ProductForm({
 
         active:
           Boolean(form.active),
+
+        weightGrams:
+          Number(form.weightGrams),
 
         colorIds:
           form.colorIds,
@@ -536,6 +562,27 @@ export default function ProductForm({
             }
           />
         </label>
+
+        <label style={styles.label}>
+          Weight Grams
+
+          <input
+            type="number"
+            min="0"
+            step="1"
+            value={
+              form.weightGrams
+            }
+            onChange={(event) =>
+              updateField(
+                "weightGrams",
+                event.target.value
+              )
+            }
+            required
+            style={styles.input}
+          />
+        </label>
       </section>
 
       <section style={styles.card}>
@@ -593,6 +640,61 @@ export default function ProductForm({
               onChange={(event) =>
                 updateField(
                   "maxKeys",
+                  event.target.value
+                )
+              }
+              required
+              style={styles.input}
+            />
+          </label>
+          <br />
+          <label style={styles.label}>
+            Price per key (€)
+
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={form.pricePerKey}
+              onChange={(event) =>
+                updateField(
+                  "pricePerKey",
+                  event.target.value
+                )
+              }
+              required
+              style={styles.input}
+            />
+          </label>
+
+          <label style={styles.label}>
+            Base weight (g)
+
+            <input
+              type="number"
+              min="0"
+              value={form.baseWeightGrams}
+              onChange={(event) =>
+                updateField(
+                  "baseWeightGrams",
+                  event.target.value
+                )
+              }
+              required
+              style={styles.input}
+            />
+          </label>
+
+          <label style={styles.label}>
+            Weight per key (g)
+
+            <input
+              type="number"
+              min="0"
+              value={form.weightPerKeyGrams}
+              onChange={(event) =>
+                updateField(
+                  "weightPerKeyGrams",
                   event.target.value
                 )
               }

@@ -1,0 +1,2 @@
+ALTER TABLE "Order"
+ADD COLUMN "totalWeightGrams" INTEGER NOT NULL DEFAULT 0;
