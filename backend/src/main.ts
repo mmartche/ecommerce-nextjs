@@ -12,8 +12,12 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
+  const frontendUrl =
+    process.env.FRONTEND_URL ||
+    "http://192.168.50.159:3000";
+
   app.enableCors({
-    origin: 'http://192.168.50.159:3000',
+    origin: frontendUrl,
     credentials: true,
   });
 

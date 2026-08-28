@@ -15,7 +15,6 @@ docker-compose up -d
 ```
 
 ## Logs
-
 ```bash
 docker logs -f ecommerce-nextjs
 docker logs -f ecommerce-api
@@ -30,6 +29,11 @@ docker-compose restart api
 ```bash
 docker-compose exec api \ npx prisma migrate dev \ --name [import_name]
 docker-compose exec api npx prisma generate
+```
+
+## PRD
+```bash
+docker-compose -f docker-compose.prod.yml up -d
 ```
 
 Open:

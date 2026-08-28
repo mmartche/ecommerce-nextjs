@@ -22,7 +22,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly usersService: UsersService
-  ) {}
+  ) { }
 
   @Post("register")
   register(@Body() dto: RegisterDto) {
@@ -40,7 +40,7 @@ export class AuthController {
     response.cookie("auth_token", result.token, {
       httpOnly: true,
       sameSite: "lax",
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
