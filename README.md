@@ -33,7 +33,10 @@ docker-compose exec api npx prisma generate
 
 ## PRD
 ```bash
-docker-compose -f docker-compose.prod.yml up -d
+docker compose \
+  --env-file .env.production \
+  -f docker-compose.prod.yml \
+  up -d --build
 ```
 
 Open:

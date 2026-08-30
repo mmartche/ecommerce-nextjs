@@ -9,7 +9,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class PostalCodesService {
   constructor(
     private readonly prisma: PrismaService,
-  ) {}
+  ) { }
 
   async findByPostalCode(
     postalCode: string,
@@ -17,10 +17,15 @@ export class PostalCodesService {
     const normalized =
       postalCode.trim();
 
+    const [postalCode4, postalCode3] = normalized.split('-');
+
     const result =
-      await this.prisma.postalCode.findUnique({
+      await this.prisma.postalCode.findFirst({
         where: {
-          postalCode: normalized,
+          postalCode4,
+          ...(postalCode3 && {
+            postalCode3,
+          }),
         },
       });
 
@@ -30,18 +35,24 @@ export class PostalCodesService {
       );
     }
 
+    const street = [
+      result.streetType,
+      result.streetPreposition,
+      result.streetTitle,
+      result.streetPreposition2,
+      result.streetName,
+    ]
+      .filter(Boolean)
+      .join(' ');
+
     return {
       valid: true,
-      postalCode:
-        result.postalCode,
-      locality:
-        result.locality,
-      district:
-        result.district,
-      county:
-        result.county,
-      street:
-        result.street,
+      postalCode: `${result.postalCode4}-${result.postalCode3}`,
+      postalDesignation: result.postalDesignation,
+      locality: result.locality,
+      districtCode: result.districtCode,
+      countyCode: result.countyCode,
+      street,
     };
   }
 }

@@ -9,7 +9,7 @@ import {
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
-  "http://192.168.50.159:4000";
+  "http://localhost:4000";
 
 const AuthContext = createContext(null);
 
