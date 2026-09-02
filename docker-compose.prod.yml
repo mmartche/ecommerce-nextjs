@@ -24,7 +24,7 @@ services:
       FRONTEND_URL: ${FRONTEND_URL}
       FRONTEND_LOCAL_URL: ${FRONTEND_LOCAL_URL}
     ports:
-      - "4000:4000"
+      - "127.0.0.1:4000:4000"
     volumes:
       - ./backend/uploads:/app/uploads
     depends_on:
@@ -43,7 +43,7 @@ services:
       API_URL: http://api:4000
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     depends_on:
       - api
     restart: unless-stopped
@@ -61,7 +61,7 @@ services:
     image: adminer:latest
     container_name: ecommerce-prod-adminer
     ports:
-      - "${IP_LOCAL}:8000:8080"
+      - "127.0.0.1:8000:8080"
     depends_on:
       - postgres
     restart: unless-stopped
