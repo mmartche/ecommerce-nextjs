@@ -4,7 +4,7 @@ import {
   createContext,
   useContext,
   useEffect,
-  useState
+  useState,
 } from "react";
 
 const API_URL =
@@ -22,7 +22,7 @@ export function AuthProvider({ children }) {
       const response = await fetch(
         `${API_URL}/api/auth/me`,
         {
-          credentials: "include"
+          credentials: "include",
         }
       );
 
@@ -36,7 +36,9 @@ export function AuthProvider({ children }) {
       setUser(data);
 
       return data;
-    } catch {
+    } catch (error) {
+      console.error("Failed to refresh user:", error);
+
       setUser(null);
       return null;
     } finally {
@@ -51,12 +53,12 @@ export function AuthProvider({ children }) {
         method: "POST",
         credentials: "include",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           email,
-          password
-        })
+          password,
+        }),
       }
     );
 
@@ -64,7 +66,9 @@ export function AuthProvider({ children }) {
 
     if (!response.ok) {
       throw new Error(
-        data.error || "Login failed"
+        data.error ||
+        data.message ||
+        "Login failed"
       );
     }
 
@@ -79,7 +83,7 @@ export function AuthProvider({ children }) {
         `${API_URL}/api/auth/logout`,
         {
           method: "POST",
-          credentials: "include"
+          credentials: "include",
         }
       );
     } finally {
@@ -98,7 +102,7 @@ export function AuthProvider({ children }) {
         loading,
         login,
         logout,
-        refreshUser
+        refreshUser,
       }}
     >
       {children}
