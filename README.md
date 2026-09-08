@@ -11,7 +11,7 @@ Stack:
 ## Start
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 ## Logs
@@ -22,20 +22,20 @@ docker logs -f ecommerce-api
 
 ## Restart API
 ```bash
-docker-compose restart api
+docker compose restart api
 ```
 
 ## When Update DB
 ```bash
-docker-compose exec api \ npx prisma migrate dev \ --name [import_name]
-docker-compose exec api npx prisma generate
+docker compose exec api \ npx prisma migrate dev \ --name [import_name]
+docker compose exec api npx prisma generate
 ```
 
 ## PRD
 ```bash
 docker compose \
   --env-file .env.production \
-  -f docker-compose.prod.yml \
+  -f docker compose.prod.yml \
   up -d --build
 ```
 
@@ -56,12 +56,16 @@ Adminer connection:
 After the containers are running:
 
 ```bash
-docker-compose exec api npx prisma generate
-docker-compose exec api npx prisma migrate dev --name init
-docker-compose exec api npx prisma migrate dev --name product_customization
+docker compose exec api npx prisma migrate deploy
+```
+
+```bash
+docker compose exec api npx prisma generate
+docker compose exec api npx prisma migrate dev --name init
+docker compose exec api npx prisma migrate dev --name product_customization
 ```
 
 To database delete:
 ```bash
-docker-compose run --rm api npx prisma migrate dev --name init
+docker compose run --rm api npx prisma migrate dev --name init
 ```

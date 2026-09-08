@@ -13,6 +13,8 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { SaveProductDto } from './dto/save-product.dto';
 import { UpdateOrderTrackingDto } from './dto/update-order-tracking.dto';
+import { CreateFontDto } from './dto/create-font.dto';
+import { CreateColorDto } from './dto/create-color.dto';
 
 @Injectable()
 export class AdminService {
@@ -607,4 +609,53 @@ export class AdminService {
     });
   }
 
+  async createColor(dto: CreateColorDto) {
+  const existing = await this.prisma.color.findFirst({
+    where: {
+      name: {
+        equals: dto.name.trim(),
+        mode: 'insensitive',
+      },
+    },
+  });
+
+  if (existing) {
+    throw new ConflictException(
+      'A color with this name already exists',
+    );
+  }
+
+  return this.prisma.color.create({
+    data: {
+      name: dto.name.trim(),
+      hex: dto.hex.toUpperCase(),
+      filamentCode:
+        dto.filamentCode?.trim() || null,
+    },
+  });
+}
+
+  async createFont(dto: CreateFontDto) {
+  const existing = await this.prisma.font.findFirst({
+    where: {
+      name: {
+        equals: dto.name.trim(),
+        mode: 'insensitive',
+      },
+    },
+  });
+
+  if (existing) {
+    throw new ConflictException(
+      'A font with this name already exists',
+    );
+  }
+
+  return this.prisma.font.create({
+    data: {
+      name: dto.name.trim(),
+      bordered: dto.bordered ?? false,
+    },
+  });
+}
 }

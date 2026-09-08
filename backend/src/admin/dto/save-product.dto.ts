@@ -82,21 +82,23 @@ export class SaveProductDto {
   @Min(1)
   weightGrams: number;
 
+  @IsOptional()
   @IsArray()
   @ArrayMinSize(1)
   @ArrayUnique()
   @IsInt({
     each: true,
   })
-  colorIds: number[];
+  colorIds?: number[];
 
+  @IsOptional()
   @IsArray()
   @ArrayMinSize(1)
   @ArrayUnique()
   @IsInt({
     each: true,
   })
-  fontIds: number[];
+  fontIds?: number[];
 
   @IsArray()
   @ValidateNested({

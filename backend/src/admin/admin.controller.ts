@@ -33,6 +33,8 @@ import {
 
 import { UpdateOrderTrackingDto }
   from "./dto/update-order-tracking.dto";
+import { CreateColorDto } from './dto/create-color.dto';
+import { CreateFontDto } from './dto/create-font.dto';
 
 @Controller('api/admin')
 @UseGuards(
@@ -162,5 +164,15 @@ export class AdminController {
   ) {
     return this.adminService
       .updateOrderTracking(id, dto);
+  }
+
+  @Post("colors")
+  createColor(@Body() dto: CreateColorDto) {
+    return this.adminService.createColor(dto);
+  }
+
+  @Post("fonts")
+  createFont(@Body() dto: CreateFontDto) {
+    return this.adminService.createFont(dto);
   }
 }

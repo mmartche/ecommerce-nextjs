@@ -71,6 +71,21 @@ export default function ProductForm({
 
   const [uploading, setUploading] = useState(false);
 
+  const [showNewColor, setShowNewColor] = useState(false);
+  const [creatingColor, setCreatingColor] = useState(false);
+  const [newColor, setNewColor] = useState({
+    name: "",
+    hex: "#000000",
+    filamentCode: "",
+  });
+
+  const [showNewFont, setShowNewFont] = useState(false);
+  const [creatingFont, setCreatingFont] = useState(false);
+  const [newFont, setNewFont] = useState({
+    name: "",
+    bordered: false,
+  });
+
   useEffect(() => {
     loadCatalog();
   }, []);
@@ -370,6 +385,127 @@ export default function ProductForm({
           ),
       })
     );
+  }
+
+  async function createColor() {
+    if (!newColor.name.trim()) {
+      setError("Color name is required.");
+      return;
+    }
+
+    if (!/^#[0-9A-Fa-f]{6}$/.test(newColor.hex)) {
+      setError("Color must have a valid HEX value.");
+      return;
+    }
+
+    try {
+      setCreatingColor(true);
+      setError("");
+
+      const response = await fetch(`${API_URL}/api/admin/colors`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: newColor.name.trim(),
+          hex: newColor.hex.toUpperCase(),
+          filamentCode: newColor.filamentCode.trim() || undefined,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        const message = Array.isArray(data.message)
+          ? data.message.join(", ")
+          : data.message || data.error || "Failed to create color";
+
+        throw new Error(message);
+      }
+
+      setCatalog((current) => ({
+        ...current,
+        colors: [...current.colors, data],
+      }));
+
+      setForm((current) => ({
+        ...current,
+        colorIds: current.colorIds.includes(data.id)
+          ? current.colorIds
+          : [...current.colorIds, data.id],
+      }));
+
+      setNewColor({
+        name: "",
+        hex: "#000000",
+        filamentCode: "",
+      });
+
+      setShowNewColor(false);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setCreatingColor(false);
+    }
+  }
+
+  async function createFont() {
+    if (!newFont.name.trim()) {
+      setError("Font name is required.");
+      return;
+    }
+
+    try {
+      setCreatingFont(true);
+      setError("");
+
+      const response = await fetch(`${API_URL}/api/admin/fonts`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: newFont.name.trim(),
+          bordered: Boolean(newFont.bordered),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        const message = Array.isArray(data.message)
+          ? data.message.join(", ")
+          : data.message || data.error || "Failed to create font";
+
+        throw new Error(message);
+      }
+
+      setCatalog((current) => ({
+        ...current,
+        fonts: [...current.fonts, data],
+      }));
+
+      setForm((current) => ({
+        ...current,
+        fontIds: current.fontIds.includes(data.id)
+          ? current.fontIds
+          : [...current.fontIds, data.id],
+      }));
+
+      setNewFont({
+        name: "",
+        bordered: false,
+      });
+
+      setShowNewFont(false);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setCreatingFont(false);
+    }
   }
 
   async function handleSubmit(
@@ -721,84 +857,191 @@ export default function ProductForm({
       </section>
 
       <section style={styles.card}>
-        <h2>Colors</h2>
+        <div style={styles.sectionHeader}>
+          <h2>Colors</h2>
+
+          <button
+            type="button"
+            onClick={() => setShowNewColor((current) => !current)}
+            style={styles.secondaryButton}
+          >
+            {showNewColor ? "Cancel new color" : "+ New color"}
+          </button>
+        </div>
+
+        {showNewColor && (
+          <div style={styles.inlineEditor}>
+            <label style={styles.label}>
+              Color name
+
+              <input
+                value={newColor.name}
+                onChange={(event) =>
+                  setNewColor((current) => ({
+                    ...current,
+                    name: event.target.value,
+                  }))
+                }
+                placeholder="Matte Marine Blue"
+                style={styles.input}
+              />
+            </label>
+
+            <label style={styles.label}>
+              HEX
+
+              <div style={styles.colorInputRow}>
+                <input
+                  type="color"
+                  value={newColor.hex}
+                  onChange={(event) =>
+                    setNewColor((current) => ({
+                      ...current,
+                      hex: event.target.value,
+                    }))
+                  }
+                  style={styles.colorPicker}
+                />
+
+                <input
+                  value={newColor.hex}
+                  onChange={(event) =>
+                    setNewColor((current) => ({
+                      ...current,
+                      hex: event.target.value,
+                    }))
+                  }
+                  placeholder="#000000"
+                  style={styles.input}
+                />
+              </div>
+            </label>
+
+            <label style={styles.label}>
+              Filament code
+
+              <input
+                value={newColor.filamentCode}
+                onChange={(event) =>
+                  setNewColor((current) => ({
+                    ...current,
+                    filamentCode: event.target.value,
+                  }))
+                }
+                placeholder="11600"
+                style={styles.input}
+              />
+            </label>
+
+            <button
+              type="button"
+              onClick={createColor}
+              disabled={creatingColor}
+              style={styles.primaryButton}
+            >
+              {creatingColor ? "Adding..." : "Add color"}
+            </button>
+          </div>
+        )}
 
         <div style={styles.options}>
-          {catalog.colors.map(
-            (color) => (
-              <label
-                key={color.id}
-                style={
-                  styles.option
-                }
-              >
-                <input
-                  type="checkbox"
-                  checked={
-                    form.colorIds.includes(
-                      color.id
-                    )
-                  }
-                  onChange={() =>
-                    toggleColor(
-                      color.id
-                    )
-                  }
-                />
+          {catalog.colors.map((color) => (
+            <label key={color.id} style={styles.option}>
+              <input
+                type="checkbox"
+                checked={form.colorIds.includes(color.id)}
+                onChange={() => toggleColor(color.id)}
+              />
 
-                <span
-                  style={{
-                    ...styles.color,
-                    background:
-                      color.hex,
-                  }}
-                />
+              <span
+                style={{
+                  ...styles.color,
+                  background: color.hex,
+                }}
+              />
 
-                <span>
-                  {color.name}
-                </span>
-              </label>
-            )
-          )}
+              <span>
+                {color.name}
+                {color.filamentCode ? ` (${color.filamentCode})` : ""}
+              </span>
+            </label>
+          ))}
         </div>
       </section>
 
       <section style={styles.card}>
-        <h2>Fonts</h2>
+        <div style={styles.sectionHeader}>
+          <h2>Fonts</h2>
+
+          <button
+            type="button"
+            onClick={() => setShowNewFont((current) => !current)}
+            style={styles.secondaryButton}
+          >
+            {showNewFont ? "Cancel new font" : "+ New font"}
+          </button>
+        </div>
+
+        {showNewFont && (
+          <div style={styles.inlineEditor}>
+            <label style={styles.label}>
+              Font name
+
+              <input
+                value={newFont.name}
+                onChange={(event) =>
+                  setNewFont((current) => ({
+                    ...current,
+                    name: event.target.value,
+                  }))
+                }
+                placeholder="Montserrat"
+                style={styles.input}
+              />
+            </label>
+
+            <label style={styles.checkbox}>
+              <input
+                type="checkbox"
+                checked={newFont.bordered}
+                onChange={(event) =>
+                  setNewFont((current) => ({
+                    ...current,
+                    bordered: event.target.checked,
+                  }))
+                }
+              />
+
+              With border
+            </label>
+
+            <button
+              type="button"
+              onClick={createFont}
+              disabled={creatingFont}
+              style={styles.primaryButton}
+            >
+              {creatingFont ? "Adding..." : "Add font"}
+            </button>
+          </div>
+        )}
 
         <div style={styles.options}>
-          {catalog.fonts.map(
-            (font) => (
-              <label
-                key={font.id}
-                style={
-                  styles.option
-                }
-              >
-                <input
-                  type="checkbox"
-                  checked={
-                    form.fontIds.includes(
-                      font.id
-                    )
-                  }
-                  onChange={() =>
-                    toggleFont(
-                      font.id
-                    )
-                  }
-                />
+          {catalog.fonts.map((font) => (
+            <label key={font.id} style={styles.option}>
+              <input
+                type="checkbox"
+                checked={form.fontIds.includes(font.id)}
+                onChange={() => toggleFont(font.id)}
+              />
 
-                <span>
-                  {font.name}
-                  {" — "}
-                  {font.bordered
-                    ? "With border"
-                    : "Without border"}
-                </span>
-              </label>
-            )
-          )}
+              <span>
+                {font.name}
+                {" — "}
+                {font.bordered ? "With border" : "Without border"}
+              </span>
+            </label>
+          ))}
         </div>
       </section>
 
@@ -1214,6 +1457,35 @@ const styles = {
     background: "#111",
     color: "#fff",
     padding: "11px 16px",
+    borderRadius: "8px",
+    cursor: "pointer",
+  },
+
+  inlineEditor: {
+    display: "grid",
+    gridTemplateColumns:
+      "repeat(auto-fit, minmax(180px, 1fr))",
+    alignItems: "end",
+    gap: "14px",
+    marginBottom: "20px",
+    padding: "16px",
+    border: "1px solid #eee",
+    borderRadius: "10px",
+    background: "#fafafa",
+  },
+
+  colorInputRow: {
+    display: "grid",
+    gridTemplateColumns: "52px 1fr",
+    gap: "10px",
+    alignItems: "center",
+  },
+
+  colorPicker: {
+    width: "52px",
+    height: "42px",
+    padding: "2px",
+    border: "1px solid #ccc",
     borderRadius: "8px",
     cursor: "pointer",
   },
