@@ -12,16 +12,27 @@ import {
 } from '@nestjs/platform-express';
 
 import {
-  diskStorage,
+  memoryStorage,
 } from 'multer';
 
 import {
   extname,
+  join,
 } from 'path';
+
+import {
+  mkdir,
+  writeFile,
+} from 'fs/promises';
 
 import {
   randomUUID,
 } from 'crypto';
+
+import {
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
 
 import {
   UserRole,
@@ -46,34 +57,16 @@ import {
 )
 @Roles(UserRole.ADMIN)
 export class UploadsController {
+  private readonly s3 = new S3Client({
+    region: process.env.AWS_REGION,
+  });
+
   @Post('product-image')
   @UseInterceptors(
     FileInterceptor(
       'file',
       {
-        storage: diskStorage({
-          destination:
-            './uploads/products',
-
-          filename: (
-            request,
-            file,
-            callback,
-          ) => {
-            const extension =
-              extname(
-                file.originalname,
-              ).toLowerCase();
-
-            const filename =
-              `${randomUUID()}${extension}`;
-
-            callback(
-              null,
-              filename,
-            );
-          },
-        }),
+        storage: memoryStorage(),
 
         limits: {
           fileSize:
@@ -111,7 +104,7 @@ export class UploadsController {
       },
     ),
   )
-  uploadProductImage(
+  async uploadProductImage(
     @UploadedFile()
     file:
       Express.Multer.File,
@@ -122,12 +115,106 @@ export class UploadsController {
       );
     }
 
+    const extension =
+      extname(
+        file.originalname,
+      ).toLowerCase();
+
+    const filename =
+      `${randomUUID()}${extension}`;
+
+    const storageType =
+      process.env.STORAGE_TYPE ||
+      'local';
+
+    if (
+      storageType === 's3'
+    ) {
+      return this.uploadToS3(
+        file,
+        filename,
+      );
+    }
+
+    return this.uploadLocal(
+      file,
+      filename,
+    );
+  }
+
+  private async uploadLocal(
+    file:
+      Express.Multer.File,
+    filename: string,
+  ) {
+    const directory =
+      join(
+        process.cwd(),
+        'uploads',
+        'products',
+      );
+
+    await mkdir(
+      directory,
+      {
+        recursive: true,
+      },
+    );
+
+    await writeFile(
+      join(
+        directory,
+        filename,
+      ),
+      file.buffer,
+    );
+
     return {
-      filename:
-        file.filename,
+      filename,
 
       url:
-        `/uploads/products/${file.filename}`,
+        `/uploads/products/${filename}`,
+    };
+  }
+
+  private async uploadToS3(
+    file:
+      Express.Multer.File,
+    filename: string,
+  ) {
+    const bucket =
+      process.env.AWS_S3_BUCKET;
+
+    const region =
+      process.env.AWS_REGION;
+
+    if (
+      !bucket ||
+      !region
+    ) {
+      throw new BadRequestException(
+        'S3 storage is not configured',
+      );
+    }
+
+    const key =
+      `products/${filename}`;
+
+    await this.s3.send(
+      new PutObjectCommand({
+        Bucket: bucket,
+        Key: key,
+        Body: file.buffer,
+        ContentType:
+          file.mimetype,
+      }),
+    );
+
+    return {
+      filename,
+
+      url:
+        `https://${bucket}.s3.${region}.amazonaws.com/${key}`,
     };
   }
 }

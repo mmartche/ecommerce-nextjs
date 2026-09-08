@@ -32,6 +32,9 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       IFTHENPAY_MBWAY_KEY: ${IFTHENPAY_MBWAY_KEY}
       IFTHENPAY_CALLBACK_KEY: ${IFTHENPAY_CALLBACK_KEY}
+      STORAGE_TYPE: ${STORAGE_TYPE}
+      AWS_REGION: ${AWS_REGION}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
     volumes:
       - ./backend/src:/app/src
       - ./backend/prisma:/app/prisma
