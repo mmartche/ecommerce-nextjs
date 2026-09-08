@@ -33,7 +33,7 @@ export default function Header() {
             fontWeight: "700"
           }}
         >
-          My E-commerce
+          Loja da Fumaça
         </Link>
 
         <nav

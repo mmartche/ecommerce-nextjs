@@ -31,9 +31,6 @@ export default async function Home() {
         fontFamily: "Arial, sans-serif"
       }}
     >
-      <h1>A Loja da Fumaca</h1>
-
-      <p>Produtos</p>
 
       <div
         style={{
