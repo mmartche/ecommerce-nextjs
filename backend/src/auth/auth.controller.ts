@@ -41,6 +41,11 @@ export class AuthController {
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
+      domain:
+        process.env.NODE_ENV === "production"
+          ? ".lojadafumaca.com"
+          : undefined,
+      path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -52,7 +57,16 @@ export class AuthController {
     @Res({ passthrough: true })
     response: Response
   ) {
-    response.clearCookie("auth_token");
+    response.clearCookie("auth_token", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      domain:
+        process.env.NODE_ENV === "production"
+          ? ".lojadafumaca.com"
+          : undefined,
+      path: "/",
+    });
 
     return {
       success: true,
