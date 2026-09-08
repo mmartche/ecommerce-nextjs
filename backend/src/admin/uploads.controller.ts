@@ -57,9 +57,6 @@ import {
 )
 @Roles(UserRole.ADMIN)
 export class UploadsController {
-  private readonly s3 = new S3Client({
-    region: process.env.AWS_REGION,
-  });
 
   @Post('product-image')
   @UseInterceptors(
@@ -177,6 +174,21 @@ export class UploadsController {
     };
   }
 
+  private getS3Client() {
+    const region =
+      process.env.AWS_REGION;
+
+    if (!region) {
+      throw new BadRequestException(
+        'AWS_REGION is not configured',
+      );
+    }
+
+    return new S3Client({
+      region,
+    });
+  }
+
   private async uploadToS3(
     file:
       Express.Multer.File,
@@ -200,7 +212,10 @@ export class UploadsController {
     const key =
       `products/${filename}`;
 
-    await this.s3.send(
+    const s3 =
+      this.getS3Client();
+
+    await s3.send(
       new PutObjectCommand({
         Bucket: bucket,
         Key: key,
