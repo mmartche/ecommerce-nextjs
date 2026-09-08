@@ -1,5 +1,6 @@
 import Header from "../components/Header";
 import { AuthProvider } from "../context/AuthContext";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 export const metadata = {
   title: "My E-commerce",
@@ -23,6 +24,9 @@ export default function RootLayout({ children }) {
           {children}
         </AuthProvider>
       </body>
+      <GoogleAnalytics
+        gaId={process.env.NEXT_PUBLIC_GA_ID}
+      />
     </html>
   );
 }
