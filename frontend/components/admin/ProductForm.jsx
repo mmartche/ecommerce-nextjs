@@ -272,22 +272,84 @@ export default function ProductForm({
   //   }));
   // }
 
-  function removeImage(index) {
-    setForm((current) => ({
-      ...current,
+  async function removeImage(
+    index
+  ) {
+    const image =
+      form.images[index];
 
-      images:
-        current.images.filter(
-          (_, imageIndex) =>
-            imageIndex !== index
-        ),
-    }));
+    if (!image) {
+      return;
+    }
+
+    try {
+      setError("");
+
+      const response =
+        await fetch(
+          `${API_URL}/api/admin/uploads/product-image`,
+          {
+            method: "DELETE",
+
+            credentials:
+              "include",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                url: image.url,
+              }),
+          }
+        );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+          data.error ||
+          "Failed to delete image"
+        );
+      }
+
+      setForm(
+        (current) => ({
+          ...current,
+
+          images:
+            current.images.filter(
+              (
+                _,
+                imageIndex
+              ) =>
+                imageIndex !==
+                index
+            ),
+        })
+      );
+    } catch (error) {
+      setError(
+        error.message
+      );
+    }
   }
 
   async function uploadImage(
     file
   ) {
     if (!file) {
+      return;
+    }
+
+    if (!form.slug.trim()) {
+      setError(
+        "Enter the product name before uploading images."
+      );
       return;
     }
 
@@ -301,6 +363,11 @@ export default function ProductForm({
       formData.append(
         "file",
         file
+      );
+
+      formData.append(
+        "slug",
+        form.slug
       );
 
       const response =

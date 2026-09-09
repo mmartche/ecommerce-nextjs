@@ -92,3 +92,9 @@ coverage/
 # PRD
 # =========================
 .env.production
+
+# =========================
+# DEV Files
+# =========================
+backend/uploads/products/*
+!backend/uploads/products/.gitkeep
