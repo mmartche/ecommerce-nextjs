@@ -22,6 +22,7 @@ docker logs -f ecommerce-api
 
 ## Restart API
 ```bash
+docker compose build --no-cache api
 docker compose restart api
 ```
 

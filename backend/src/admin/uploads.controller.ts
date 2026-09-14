@@ -54,6 +54,8 @@ import {
   Roles,
 } from '../auth/roles.decorator';
 
+import { Throttle } from '@nestjs/throttler';
+
 @Controller('api/admin/uploads')
 @UseGuards(
   JwtAuthGuard,
@@ -62,6 +64,12 @@ import {
 @Roles(UserRole.ADMIN)
 export class UploadsController {
 
+  @Throttle({
+    default: {
+      limit: 10,
+      ttl: 60000,
+    },
+  })
   @Post('product-image')
   @UseInterceptors(
     FileInterceptor(
