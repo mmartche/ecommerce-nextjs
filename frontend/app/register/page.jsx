@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { apiGet, apiPost } from "@/lib/api";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -48,7 +49,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const response = await fetch(
+      const response = await apiPost(
         `${API_URL}/api/auth/register`,
         {
           method: "POST",
@@ -64,13 +65,7 @@ export default function RegisterPage() {
         }
       );
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.error || "Registration failed"
-        );
-      }
+      const data = await response;
 
       router.push("/login");
     } catch (error) {

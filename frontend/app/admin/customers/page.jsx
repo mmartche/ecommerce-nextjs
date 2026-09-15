@@ -13,6 +13,7 @@ import {
     useAuth,
 } from "../../../context/AuthContext";
 import Link from "next/link";
+import { apiGet, apiPatch } from "@/lib/api";
 
 const API_URL =
     process.env.NEXT_PUBLIC_API_URL ||
@@ -69,7 +70,7 @@ export default function CustomersPage() {
             setError("");
 
             const response =
-                await fetch(
+                await apiGet(
                     `${API_URL}/api/admin/users`,
                     {
                         credentials:
@@ -78,15 +79,7 @@ export default function CustomersPage() {
                 );
 
             const data =
-                await response.json();
-
-            if (!response.ok) {
-                throw new Error(
-                    data.message ||
-                    data.error ||
-                    "Failed to load customers"
-                );
-            }
+                await response;
 
             setUsers(data);
         } catch (error) {
@@ -107,7 +100,7 @@ export default function CustomersPage() {
             setError("");
 
             const response =
-                await fetch(
+                await apiPatch(
                     `${API_URL}/api/admin/users/${userId}/role`,
                     {
                         method: "PATCH",
@@ -128,15 +121,7 @@ export default function CustomersPage() {
                 );
 
             const data =
-                await response.json();
-
-            if (!response.ok) {
-                throw new Error(
-                    data.message ||
-                    data.error ||
-                    "Failed to update role"
-                );
-            }
+                await response;
 
             setUsers((current) =>
                 current.map((item) =>

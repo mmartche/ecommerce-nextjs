@@ -12,6 +12,7 @@ import {
 
 import { useAuth } from "../../../../context/AuthContext";
 import ProductForm from "../../../../components/admin/ProductForm";
+import { apiGet } from "@/lib/api";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -75,7 +76,7 @@ export default function EditProductPage() {
   async function loadProduct() {
     try {
       const response =
-        await fetch(
+        await apiGet(
           `${API_URL}/api/admin/products/${params.id}`,
           {
             credentials:
@@ -84,14 +85,7 @@ export default function EditProductPage() {
         );
 
       const data =
-        await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-            "Failed to load product"
-        );
-      }
+        await response;
 
       setProduct(data);
     } catch (error) {

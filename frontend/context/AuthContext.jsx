@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { apiGet, apiPost } from "@/lib/api";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -19,19 +20,14 @@ export function AuthProvider({ children }) {
 
   async function refreshUser() {
     try {
-      const response = await fetch(
+      const response = await apiGet(
         `${API_URL}/api/auth/me`,
         {
           credentials: "include",
         }
       );
 
-      if (!response.ok) {
-        setUser(null);
-        return null;
-      }
-
-      const data = await response.json();
+      const data = await response;
 
       setUser(data);
 
@@ -47,7 +43,7 @@ export function AuthProvider({ children }) {
   }
 
   async function login(email, password) {
-    const response = await fetch(
+    const response = await apiPost(
       `${API_URL}/api/auth/login`,
       {
         method: "POST",
@@ -62,15 +58,7 @@ export function AuthProvider({ children }) {
       }
     );
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        data.error ||
-        data.message ||
-        "Login failed"
-      );
-    }
+    const data = await response;
 
     setUser(data);
 
@@ -79,7 +67,7 @@ export function AuthProvider({ children }) {
 
   async function logout() {
     try {
-      await fetch(
+      await apiPost(
         `${API_URL}/api/auth/logout`,
         {
           method: "POST",

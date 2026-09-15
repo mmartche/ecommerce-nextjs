@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { useAuth } from "../../context/AuthContext";
+import { apiGet, apiPatch } from "@/lib/api";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -60,23 +61,14 @@ export default function AdminPage() {
       setLoading(true);
       setError("");
 
-      const response = await fetch(
+      const response = await apiGet(
         `${API_URL}/api/admin/orders`,
         {
           credentials: "include",
         }
       );
 
-      const data =
-        await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-          data.error ||
-          "Failed to load orders"
-        );
-      }
+      const data = await response;
 
       setOrders(data);
     } catch (error) {
@@ -94,7 +86,7 @@ export default function AdminPage() {
       setUpdatingId(orderId);
       setError("");
 
-      const response = await fetch(
+      const response = await apiPatch(
         `${API_URL}/api/admin/orders/${orderId}/status`,
         {
           method: "PATCH",
@@ -112,16 +104,7 @@ export default function AdminPage() {
         }
       );
 
-      const data =
-        await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-          data.error ||
-          "Failed to update order"
-        );
-      }
+      const data = await response;
 
       setOrders((currentOrders) =>
         currentOrders.map((order) =>

@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 
 import { useAuth } from "../../../context/AuthContext";
 import { formatWeight } from "../../../lib/formatWeight";
+import { apiGet } from "@/lib/api";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -30,20 +31,14 @@ export default function OrderDetailsPage() {
 
     async function loadOrder() {
       try {
-        const response = await fetch(
+        const response = await apiGet(
           `${API_URL}/api/orders/${params.id}`,
           {
             credentials: "include"
           }
         );
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            data.error || "Failed to load order"
-          );
-        }
+        const data = await response;
 
         setOrder(data);
       } catch (error) {

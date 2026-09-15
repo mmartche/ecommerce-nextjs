@@ -14,6 +14,7 @@ import {
 import {
   useAuth,
 } from "../../../context/AuthContext";
+import { apiGet, apiPatch } from "@/lib/api";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -77,7 +78,7 @@ export default function AdminProductsPage() {
       setError("");
 
       const response =
-        await fetch(
+        await apiGet(
           `${API_URL}/api/admin/products`,
           {
             credentials:
@@ -86,14 +87,7 @@ export default function AdminProductsPage() {
         );
 
       const data =
-        await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-          "Failed to load products",
-        );
-      }
+        await response;
 
       setProducts(data);
     } catch (error) {
@@ -110,7 +104,7 @@ export default function AdminProductsPage() {
   ) {
     try {
       const response =
-        await fetch(
+        await apiPatch(
           `${API_URL}/api/admin/products/${product.id}/active`,
           {
             method: "PATCH",
@@ -132,14 +126,7 @@ export default function AdminProductsPage() {
         );
 
       const data =
-        await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-          "Failed to update product",
-        );
-      }
+        await response;
 
       setProducts(
         (current) =>

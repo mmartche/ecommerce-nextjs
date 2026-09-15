@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { apiDelete, apiGet, apiPost } from "@/lib/api";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -143,7 +144,7 @@ export default function ProductForm({
 
   async function loadCatalog() {
     try {
-      const response = await fetch(
+      const response = await apiGet(
         `${API_URL}/api/admin/catalog`,
         {
           credentials: "include",
@@ -151,14 +152,7 @@ export default function ProductForm({
       );
 
       const data =
-        await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-          "Failed to load catalog"
-        );
-      }
+        await response;
 
       setCatalog(data);
     } catch (error) {
@@ -286,7 +280,7 @@ export default function ProductForm({
       setError("");
 
       const response =
-        await fetch(
+        await apiDelete(
           `${API_URL}/api/admin/uploads/product-image`,
           {
             method: "DELETE",
@@ -307,15 +301,7 @@ export default function ProductForm({
         );
 
       const data =
-        await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-          data.error ||
-          "Failed to delete image"
-        );
-      }
+        await response;
 
       setForm(
         (current) => ({
@@ -371,7 +357,7 @@ export default function ProductForm({
       );
 
       const response =
-        await fetch(
+        await apiPost(
           `${API_URL}/api/admin/uploads/product-image`,
           {
             method: "POST",
@@ -384,24 +370,7 @@ export default function ProductForm({
         );
 
       const data =
-        await response.json();
-
-      if (!response.ok) {
-        const message =
-          Array.isArray(
-            data.message
-          )
-            ? data.message.join(
-              ", "
-            )
-            : data.message ||
-            data.error ||
-            "Upload failed";
-
-        throw new Error(
-          message
-        );
-      }
+        await response;
 
       setForm(
         (current) => ({
@@ -469,7 +438,7 @@ export default function ProductForm({
       setCreatingColor(true);
       setError("");
 
-      const response = await fetch(`${API_URL}/api/admin/colors`, {
+      const response = await apiPost(`${API_URL}/api/admin/colors`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -482,15 +451,7 @@ export default function ProductForm({
         }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        const message = Array.isArray(data.message)
-          ? data.message.join(", ")
-          : data.message || data.error || "Failed to create color";
-
-        throw new Error(message);
-      }
+      const data = await response;
 
       setCatalog((current) => ({
         ...current,
@@ -528,7 +489,7 @@ export default function ProductForm({
       setCreatingFont(true);
       setError("");
 
-      const response = await fetch(`${API_URL}/api/admin/fonts`, {
+      const response = await apiPost(`${API_URL}/api/admin/fonts`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -540,15 +501,7 @@ export default function ProductForm({
         }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        const message = Array.isArray(data.message)
-          ? data.message.join(", ")
-          : data.message || data.error || "Failed to create font";
-
-        throw new Error(message);
-      }
+      const data = await response;
 
       setCatalog((current) => ({
         ...current,
@@ -638,49 +591,20 @@ export default function ProductForm({
 
       const isEditing =
         Boolean(product?.id);
+      let data;
 
-      const url = isEditing
-        ? `${API_URL}/api/admin/products/${product.id}`
-        : `${API_URL}/api/admin/products`;
-
-      const response =
-        await fetch(url, {
-          method: isEditing
-            ? "PATCH"
-            : "POST",
-
-          credentials:
-            "include",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-
-          body:
-            JSON.stringify(
-              payload
-            ),
-        });
-
-      const data =
-        await response.json();
-
-      if (!response.ok) {
-        const message =
-          Array.isArray(
-            data.message
-          )
-            ? data.message.join(
-              ", "
-            )
-            : data.message ||
-            data.error ||
-            "Failed to save product";
-
-        throw new Error(
-          message
-        );
+      if (isEditing) {
+        data =
+          await apiPatch(
+            `/api/admin/products/${product.id}`,
+            payload
+          );
+      } else {
+        data =
+          await apiPost(
+            "/api/admin/products",
+            payload
+          );
       }
 
       router.push(

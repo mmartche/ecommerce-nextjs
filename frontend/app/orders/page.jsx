@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "../../context/AuthContext";
+import { apiGet } from "@/lib/api";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -26,7 +27,7 @@ export default function OrdersPage() {
         setLoading(true);
         setError("");
 
-        const response = await fetch(
+        const response = await apiGet(
           `${API_URL}/api/orders`,
           {
             headers: {
@@ -35,13 +36,7 @@ export default function OrdersPage() {
           }
         );
 
-        if (!response.ok) {
-          throw new Error(
-            "Could not load orders"
-          );
-        }
-
-        const data = await response.json();
+        const data = await response;
 
         setOrders(
           Array.isArray(data)

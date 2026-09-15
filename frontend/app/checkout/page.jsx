@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { getCart, clearCart } from "../../lib/cart";
 import { useAuth } from "../../context/AuthContext";
 import { formatWeight } from "../../lib/formatWeight";
+import { apiGet, apiPost } from "@/lib/api";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -87,7 +88,7 @@ export default function CheckoutPage() {
     try {
       let orderId = createdOrderId;
       if (!orderId) {
-        const orderResponse = await fetch(
+        const orderResponse = await apiPost(
           `${API_URL}/api/orders`,
           {
             method: "POST",
@@ -118,22 +119,12 @@ export default function CheckoutPage() {
           }
         );
 
-        const order = await orderResponse.json();
-
-        if (!orderResponse.ok) {
-          throw new Error(
-            Array.isArray(order.message)
-              ? order.message.join(", ")
-              : order.message ||
-              order.error ||
-              "Failed to create order"
-          );
-        }
+        const order = await orderResponse;
         orderId = order.id;
         setCreatedOrderId(order.id);
       }
       
-      const paymentResponse = await fetch(
+      const paymentResponse = await apiPost(
         `${API_URL}/api/payments/create`,
         {
           method: "POST",
@@ -152,17 +143,7 @@ export default function CheckoutPage() {
       );
 
       const payment =
-        await paymentResponse.json();
-
-      if (!paymentResponse.ok) {
-        throw new Error(
-          Array.isArray(payment.message)
-            ? payment.message.join(", ")
-            : payment.message ||
-            payment.error ||
-            "Failed to create payment"
-        );
-      }
+        await paymentResponse;
 
       clearCart();
 
@@ -203,16 +184,11 @@ export default function CheckoutPage() {
       return;
     }
 
-    const response = await fetch(
+    const response = await apiGet(
       `${API_URL}/api/postal-codes/${postalCode}`
     );
 
-    const data = await response.json();
-
-    if (!response.ok || !data.valid) {
-      setError("Postal code not found.");
-      return;
-    }
+    const data = await response;
 
     setCustomer((current) => ({
       ...current,
@@ -235,7 +211,7 @@ export default function CheckoutPage() {
       setShippingLoading(true);
       setError("");
 
-      const response = await fetch(
+      const response = await apiPost(
         `${API_URL}/api/shipping/calculate`,
         {
           method: "POST",
@@ -250,17 +226,7 @@ export default function CheckoutPage() {
         }
       );
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          Array.isArray(data.message)
-            ? data.message.join(", ")
-            : data.message ||
-            data.error ||
-            "Unable to calculate shipping"
-        );
-      }
+      const data = await response;
 
       setShipping(data);
     } catch (error) {

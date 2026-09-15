@@ -1,22 +1,19 @@
 import Link from "next/link";
 import { imageUrl } from "../lib/imageUrl";
+import { apiGet } from "@/lib/api";
 
 const API_URL =
   process.env.API_URL || "http://api:4000";
 
 async function getProducts() {
-  const response = await fetch(
+  const response = await apiGet(
     `${API_URL}/api/products`,
     {
       cache: "no-store"
     }
   );
 
-  if (!response.ok) {
-    throw new Error("Failed to load products");
-  }
-
-  return response.json();
+  return response;
 }
 
 export default async function Home() {

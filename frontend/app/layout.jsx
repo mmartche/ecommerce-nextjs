@@ -1,6 +1,7 @@
 import Header from "../components/Header";
 import { AuthProvider } from "../context/AuthContext";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { ToastProvider } from "../context/ToastContext";
 
 export const metadata = {
   title: "My E-commerce",
@@ -18,11 +19,13 @@ export default function RootLayout({ children }) {
           color: "#111"
         }}
       >
-        <AuthProvider>
-          <Header />
+        <ToastProvider>
+          <AuthProvider>
+            <Header />
 
-          {children}
-        </AuthProvider>
+            {children}
+          </AuthProvider>
+        </ToastProvider>
       </body>
       <GoogleAnalytics
         gaId={process.env.NEXT_PUBLIC_GA_ID}

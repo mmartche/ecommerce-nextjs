@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { addToCart } from "../../../lib/cart";
 import { imageUrl } from "../../../lib/imageUrl";
+import { apiGet } from "@/lib/api";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -39,15 +40,11 @@ export default function ProductPage({ params }) {
       try {
         const { slug } = await params;
 
-        const response = await fetch(
+        const response = await apiGet(
           `${API_URL}/api/products/${slug}`
         );
 
-        if (!response.ok) {
-          throw new Error("Product not found");
-        }
-
-        const data = await response.json();
+        const data = await response;
 
         setProduct(data);
 

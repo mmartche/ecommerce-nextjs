@@ -13,6 +13,7 @@ import {
 
 import { useAuth } from "../../../../context/AuthContext";
 import { formatWeight } from "../../../../lib/formatWeight";
+import { apiGet, apiPatch } from "@/lib/api";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -76,7 +77,7 @@ export default function AdminOrderPage() {
 
   async function loadOrder() {
     try {
-      const response = await fetch(
+      const response = await apiGet(
         `${API_URL}/api/admin/orders/${params.id}`,
         {
           credentials: "include",
@@ -84,18 +85,10 @@ export default function AdminOrderPage() {
       );
 
       const data =
-        await response.json();
+        await response;
 
       setTrackingCode(data.trackingCode || "");
       setTrackingUrl(data.trackingUrl || "");
-
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-          data.error ||
-          "Failed to load order"
-        );
-      }
 
       setOrder(data);
     } catch (error) {
@@ -112,7 +105,7 @@ export default function AdminOrderPage() {
       setSaving(true);
       setError("");
 
-      const response = await fetch(
+      const response = await apiPatch(
         `${API_URL}/api/admin/orders/${params.id}/status`,
         {
           method: "PATCH",
@@ -132,15 +125,7 @@ export default function AdminOrderPage() {
       );
 
       const data =
-        await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-          data.error ||
-          "Failed to update status"
-        );
-      }
+        await response;
 
       setOrder((current) => ({
         ...current,
@@ -154,7 +139,7 @@ export default function AdminOrderPage() {
   }
 
   async function saveTracking() {
-    const response = await fetch(
+    const response = await apiPatch(
       `${API_URL}/api/admin/orders/${order.id}/tracking`,
       {
         method: "PATCH",
@@ -174,16 +159,7 @@ export default function AdminOrderPage() {
     );
 
     const data =
-      await response.json();
-
-    if (!response.ok) {
-      alert(
-        data.message ||
-        "Failed to save tracking"
-      );
-
-      return;
-    }
+      await response;
 
     setOrder(data);
   }
