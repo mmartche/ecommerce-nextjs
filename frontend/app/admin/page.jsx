@@ -181,7 +181,14 @@ export default function AdminPage() {
         >
           Refresh
         </button>
-        <Link href="/admin/products">
+        <Link
+          style={styles.refreshButton}
+          href="/admin/customers">
+          Customers
+        </Link>
+        <Link
+          style={styles.refreshButton}
+          href="/admin/products">
           Products
         </Link>
       </div>

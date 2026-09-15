@@ -6,6 +6,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 
@@ -35,6 +36,8 @@ import { UpdateOrderTrackingDto }
   from "./dto/update-order-tracking.dto";
 import { CreateColorDto } from './dto/create-color.dto';
 import { CreateFontDto } from './dto/create-font.dto';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto';
+import { Request } from 'express';
 
 @Controller('api/admin')
 @UseGuards(
@@ -175,4 +178,31 @@ export class AdminController {
   createFont(@Body() dto: CreateFontDto) {
     return this.adminService.createFont(dto);
   }
+
+  @Get('users')
+  getUsers() {
+    return this.adminService.getUsers();
+  }
+
+  @Patch('users/:id/role')
+  updateUserRole(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateUserRoleDto,
+    @Req() request: Request,
+  ) {
+    return this.adminService.updateUserRole(
+      id,
+      dto.role,
+      request['user'].id,
+    );
+  }
+
+  @Get('users/:id')
+  getUser(
+    @Param('id', ParseIntPipe)
+    id: number,
+  ) {
+    return this.adminService.getUser(id);
+  }
+
 }

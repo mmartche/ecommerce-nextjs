@@ -8,6 +8,7 @@ import {
 import {
   Prisma,
   OrderStatus,
+  UserRole,
 } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
@@ -18,6 +19,119 @@ import { CreateColorDto } from './dto/create-color.dto';
 
 @Injectable()
 export class AdminService {
+  async getUsers() {
+    return this.prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        createdAt: true,
+      },
+
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
+  async updateUserRole(
+    id: number,
+    role: UserRole,
+    currentUserId: number,
+  ) {
+    const user =
+      await this.prisma.user.findUnique({
+        where: {
+          id,
+        },
+      });
+
+    if (!user) {
+      throw new NotFoundException(
+        'User not found',
+      );
+    }
+
+    if (
+      id === currentUserId &&
+      role !== UserRole.ADMIN
+    ) {
+      throw new BadRequestException(
+        'You cannot remove your own admin role',
+      );
+    }
+    return this.prisma.user.update({
+      where: {
+        id,
+      },
+
+      data: {
+        role,
+      },
+
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+      },
+    });
+  }
+
+  async getUser(id: number) {
+    const user =
+      await this.prisma.user.findUnique({
+        where: {
+          id,
+        },
+
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          createdAt: true,
+
+          orders: {
+            select: {
+              id: true,
+              status: true,
+              total: true,
+              createdAt: true,
+
+              items: {
+                select: {
+                  id: true,
+                  quantity: true,
+
+                  product: {
+                    select: {
+                      id: true,
+                      name: true,
+                      slug: true,
+                    },
+                  },
+                },
+              },
+            },
+
+            orderBy: {
+              createdAt: 'desc',
+            },
+          },
+        },
+      });
+
+    if (!user) {
+      throw new NotFoundException(
+        'User not found',
+      );
+    }
+
+    return user;
+  }
+
   constructor(
     private readonly prisma:
       PrismaService,
@@ -610,52 +724,52 @@ export class AdminService {
   }
 
   async createColor(dto: CreateColorDto) {
-  const existing = await this.prisma.color.findFirst({
-    where: {
-      name: {
-        equals: dto.name.trim(),
-        mode: 'insensitive',
+    const existing = await this.prisma.color.findFirst({
+      where: {
+        name: {
+          equals: dto.name.trim(),
+          mode: 'insensitive',
+        },
       },
-    },
-  });
+    });
 
-  if (existing) {
-    throw new ConflictException(
-      'A color with this name already exists',
-    );
+    if (existing) {
+      throw new ConflictException(
+        'A color with this name already exists',
+      );
+    }
+
+    return this.prisma.color.create({
+      data: {
+        name: dto.name.trim(),
+        hex: dto.hex.toUpperCase(),
+        filamentCode:
+          dto.filamentCode?.trim() || null,
+      },
+    });
   }
-
-  return this.prisma.color.create({
-    data: {
-      name: dto.name.trim(),
-      hex: dto.hex.toUpperCase(),
-      filamentCode:
-        dto.filamentCode?.trim() || null,
-    },
-  });
-}
 
   async createFont(dto: CreateFontDto) {
-  const existing = await this.prisma.font.findFirst({
-    where: {
-      name: {
-        equals: dto.name.trim(),
-        mode: 'insensitive',
+    const existing = await this.prisma.font.findFirst({
+      where: {
+        name: {
+          equals: dto.name.trim(),
+          mode: 'insensitive',
+        },
       },
-    },
-  });
+    });
 
-  if (existing) {
-    throw new ConflictException(
-      'A font with this name already exists',
-    );
+    if (existing) {
+      throw new ConflictException(
+        'A font with this name already exists',
+      );
+    }
+
+    return this.prisma.font.create({
+      data: {
+        name: dto.name.trim(),
+        bordered: dto.bordered ?? false,
+      },
+    });
   }
-
-  return this.prisma.font.create({
-    data: {
-      name: dto.name.trim(),
-      bordered: dto.bordered ?? false,
-    },
-  });
-}
 }

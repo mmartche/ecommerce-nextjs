@@ -2,6 +2,7 @@
 *. Cloudflare
 *. emails transacionais: confirmação de pedido, pagamento recebido e pedido enviado.
 *. Layout
+*. fechar o acesso direto à EC2
 
 1. Pagamentos reais
 - escolher gateway para MB WAY + cartão
