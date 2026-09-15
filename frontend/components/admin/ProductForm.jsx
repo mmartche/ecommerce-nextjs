@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { apiDelete, apiGet, apiPost } from "@/lib/api";
+import { apiDelete, apiFetch, apiGet, apiPost } from "@/lib/api";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -357,7 +357,7 @@ export default function ProductForm({
       );
 
       const response =
-        await apiPost(
+        await apiFetch(
           `${API_URL}/api/admin/uploads/product-image`,
           {
             method: "POST",
