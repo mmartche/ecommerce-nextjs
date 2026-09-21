@@ -1,0 +1,28 @@
+{
+    "Header": {
+        "home": "Início",
+        "products": "Produtos",
+        "account": "Minha conta",
+        "helcome": "Ola",
+        "login": "Entrar",
+        "logout": "Sair"
+    },
+    "Register": {
+        "title": "Criar conta",
+        "name": "Nome",
+        "email": "Email",
+        "password": "Palavra-passe",
+        "confirmPassword": "Confirmar palavra-passe",
+        "submit": "Registar",
+        "loading": "A criar conta...",
+        "alreadyAccount": "Já tem uma conta?",
+        "passwordMismatch": "As palavras-passe não coincidem.",
+        "passwordLength": "A palavra-passe deve ter pelo menos 8 caracteres."
+    },
+    "Product": {
+        "addToCart": "Adicionar ao carrinho",
+        "chooseColor": "Escolher cor",
+        "chooseFont": "Escolher fonte",
+        "keys": "Teclas"
+    }
+}

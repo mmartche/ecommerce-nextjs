@@ -1,11 +1,15 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+import { useLanguage } from "../context/LanguageContext";
 import Link from "next/link";
 import CartButton from "./CartButton";
 import { useAuth } from "../context/AuthContext";
 
 export default function Header() {
   const { user, loading } = useAuth();
+  const t = useTranslations("Header");
+  const { locale, changeLanguage } = useLanguage();
 
   return (
     <header
@@ -33,7 +37,7 @@ export default function Header() {
             fontWeight: "700"
           }}
         >
-          Loja da Fumaça
+          {t("home")}
         </Link>
 
         <nav
@@ -50,7 +54,7 @@ export default function Header() {
               color: "#111"
             }}
           >
-            Products
+            {t("products")}
           </Link>
 
           <CartButton />
@@ -76,7 +80,7 @@ export default function Header() {
                 fontWeight: "600"
               }}
             >
-              Hello, {user.name}
+              {t("helcome")}, {user.name}
             </Link>
           )}
 
@@ -93,6 +97,23 @@ export default function Header() {
                 Admin
               </Link>
             )}
+
+          <select
+            value={locale}
+            onChange={(event) =>
+              changeLanguage(
+                event.target.value
+              )
+            }
+          >
+            <option value="en">
+              English
+            </option>
+
+            <option value="pt">
+              Português
+            </option>
+          </select>
         </nav>
       </div>
     </header>

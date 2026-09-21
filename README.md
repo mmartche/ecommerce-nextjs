@@ -22,8 +22,9 @@ docker logs -f ecommerce-api
 
 ## Restart API
 ```bash
-docker compose build --no-cache api
-docker compose restart api
+docker compose down
+docker compose build --no-cache api nextjs
+docker compose up -d
 ```
 
 ## When Update DB

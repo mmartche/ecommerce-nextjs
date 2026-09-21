@@ -1,0 +1,28 @@
+{
+    "Header": {
+        "home": "Homdde",
+        "products": "Products",
+        "account": "My account",
+        "helcome": "Hello",
+        "login": "Login",
+        "logout": "Logout"
+    },
+    "Register": {
+        "title": "Create Account",
+        "name": "Name",
+        "email": "Email",
+        "password": "Password",
+        "confirmPassword": "Confirm password",
+        "submit": "Register",
+        "loading": "Creating account...",
+        "alreadyAccount": "Already have an account?",
+        "passwordMismatch": "Passwords do not match.",
+        "passwordLength": "Password must contain at least 8 characters."
+    },
+    "Product": {
+        "addToCart": "Add to cart",
+        "chooseColor": "Choose color",
+        "chooseFont": "Choose font",
+        "keys": "Keys"
+    }
+}
