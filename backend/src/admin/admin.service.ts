@@ -16,6 +16,7 @@ import { SaveProductDto } from './dto/save-product.dto';
 import { UpdateOrderTrackingDto } from './dto/update-order-tracking.dto';
 import { CreateFontDto } from './dto/create-font.dto';
 import { CreateColorDto } from './dto/create-color.dto';
+import { UploadsService } from './uploads.service';
 
 @Injectable()
 export class AdminService {
@@ -40,6 +41,15 @@ export class AdminService {
     role: UserRole,
     currentUserId: number,
   ) {
+    if (
+      id === currentUserId &&
+      role !== UserRole.ADMIN
+    ) {
+      throw new BadRequestException(
+        'You cannot remove your own admin role',
+      );
+    }
+
     const user =
       await this.prisma.user.findUnique({
         where: {
@@ -53,14 +63,6 @@ export class AdminService {
       );
     }
 
-    if (
-      id === currentUserId &&
-      role !== UserRole.ADMIN
-    ) {
-      throw new BadRequestException(
-        'You cannot remove your own admin role',
-      );
-    }
     return this.prisma.user.update({
       where: {
         id,
@@ -79,62 +81,12 @@ export class AdminService {
     });
   }
 
-  async getUser(id: number) {
-    const user =
-      await this.prisma.user.findUnique({
-        where: {
-          id,
-        },
-
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
-          createdAt: true,
-
-          orders: {
-            select: {
-              id: true,
-              status: true,
-              total: true,
-              createdAt: true,
-
-              items: {
-                select: {
-                  id: true,
-                  quantity: true,
-
-                  product: {
-                    select: {
-                      id: true,
-                      name: true,
-                      slug: true,
-                    },
-                  },
-                },
-              },
-            },
-
-            orderBy: {
-              createdAt: 'desc',
-            },
-          },
-        },
-      });
-
-    if (!user) {
-      throw new NotFoundException(
-        'User not found',
-      );
-    }
-
-    return user;
-  }
-
   constructor(
     private readonly prisma:
       PrismaService,
+
+    private readonly uploadsService:
+      UploadsService,
   ) { }
 
   findAllOrders() {
@@ -353,6 +305,31 @@ export class AdminService {
 
     await this.validateRelations(dto);
 
+    const hasTemporaryImages =
+      dto.images.some(
+        (image) =>
+          image.url.includes(
+            '/uploads/tmp/',
+          ),
+      );
+
+    if (
+      hasTemporaryImages &&
+      !dto.draftId
+    ) {
+      throw new BadRequestException(
+        'draftId is required when temporary images are attached',
+      );
+    }
+
+    const promotedImages =
+      await this.uploadsService
+        .promoteDraftImages(
+          dto.draftId,
+          slug,
+          dto.images,
+        );
+
     const product =
       await this.prisma.product.create({
         data: {
@@ -406,7 +383,7 @@ export class AdminService {
 
           images: {
             create:
-              dto.images.map(
+              promotedImages.map(
                 (image) => ({
                   url: image.url,
                   alt:
@@ -772,4 +749,65 @@ export class AdminService {
       },
     });
   }
+
+  async getUser(id: number) {
+    const user =
+      await this.prisma.user.findUnique({
+        where: {
+          id,
+        },
+
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          createdAt: true,
+
+          orders: {
+            orderBy: {
+              createdAt: 'desc',
+            },
+
+            select: {
+              id: true,
+              status: true,
+              subtotal: true,
+              shipping: true,
+              total: true,
+              createdAt: true,
+
+              items: {
+                select: {
+                  id: true,
+                  quantity: true,
+                  keys: true,
+                  colorName: true,
+                  colorHex: true,
+                  fontName: true,
+                  bordered: true,
+
+                  product: {
+                    select: {
+                      id: true,
+                      name: true,
+                      slug: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+    if (!user) {
+      throw new NotFoundException(
+        'User not found',
+      );
+    }
+
+    return user;
+  }
+
 }

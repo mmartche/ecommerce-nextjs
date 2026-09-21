@@ -5,6 +5,7 @@ import { AuthModule } from '../auth/auth.module';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 import { UploadsController } from './uploads.controller';
+import { UploadsService } from './uploads.service';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { UploadsController } from './uploads.controller';
 
   providers: [
     AdminService,
+    UploadsService
   ],
 })
 export class AdminModule { }

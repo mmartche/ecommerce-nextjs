@@ -1,4 +1,5 @@
 import {
+  ArrayMinSize,
   ArrayUnique,
   IsArray,
   IsBoolean,
@@ -6,22 +7,20 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Matches,
   Min,
   MinLength,
   ValidateNested,
-  ArrayMinSize,
-  Matches,
 } from 'class-validator';
-
 import { Type } from 'class-transformer';
 
 export class ProductImageDto {
   @IsString()
   @Matches(
-    /^(https?:\/\/.+|\/uploads\/products\/.+)$/,
+    /^(https?:\/\/.+|\/uploads\/(?:products|tmp)\/.+)$/,
     {
       message:
-        'url must be an external URL or a product upload path',
+        'url must be an external URL or a product/temp upload path',
     },
   )
   url: string;
@@ -86,24 +85,22 @@ export class SaveProductDto {
   @IsArray()
   @ArrayMinSize(1)
   @ArrayUnique()
-  @IsInt({
-    each: true,
-  })
-  colorIds?: number[];
+  @IsInt({ each: true })
+  colorIds: number[];
 
   @IsOptional()
   @IsArray()
   @ArrayMinSize(1)
   @ArrayUnique()
-  @IsInt({
-    each: true,
-  })
-  fontIds?: number[];
+  @IsInt({ each: true })
+  fontIds: number[];
 
   @IsArray()
-  @ValidateNested({
-    each: true,
-  })
+  @ValidateNested({ each: true })
   @Type(() => ProductImageDto)
   images: ProductImageDto[];
+
+  @IsOptional()
+  @IsString()
+  draftId?: string;
 }

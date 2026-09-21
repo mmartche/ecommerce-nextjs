@@ -2,7 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { apiDelete, apiFetch, apiGet, apiPost } from "@/lib/api";
+import {
+  apiDelete,
+  apiFetch,
+  apiGet,
+  apiPatch,
+  apiPost,
+} from "@/lib/api";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -53,6 +59,13 @@ export default function ProductForm({
   product = null,
 }) {
   const router = useRouter();
+
+  const [draftId] = useState(() =>
+    globalThis.crypto?.randomUUID?.() ||
+    `draft-${Date.now()}-${Math.random()
+      .toString(36)
+      .slice(2)}`
+  );
 
   const [form, setForm] = useState(EMPTY_FORM);
 
@@ -144,15 +157,10 @@ export default function ProductForm({
 
   async function loadCatalog() {
     try {
-      const response = await apiGet(
-        `${API_URL}/api/admin/catalog`,
-        {
-          credentials: "include",
-        }
-      );
-
       const data =
-        await response;
+        await apiGet(
+          "/api/admin/catalog"
+        );
 
       setCatalog(data);
     } catch (error) {
@@ -279,49 +287,23 @@ export default function ProductForm({
     try {
       setError("");
 
-      const response =
-        await apiDelete(
-          `${API_URL}/api/admin/uploads/product-image`,
-          {
-            method: "DELETE",
-
-            credentials:
-              "include",
-
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
-
-            body:
-              JSON.stringify({
-                url: image.url,
-              }),
-          }
-        );
-
-      const data =
-        await response;
-
-      setForm(
-        (current) => ({
-          ...current,
-
-          images:
-            current.images.filter(
-              (
-                _,
-                imageIndex
-              ) =>
-                imageIndex !==
-                index
-            ),
-        })
+      await apiDelete(
+        "/api/admin/uploads/product-image",
+        {
+          url: image.url,
+        }
       );
+
+      setForm((current) => ({
+        ...current,
+        images:
+          current.images.filter(
+            (_, imageIndex) =>
+              imageIndex !== index
+          ),
+      }));
     } catch (error) {
-      setError(
-        error.message
-      );
+      setError(error.message);
     }
   }
 
@@ -332,9 +314,12 @@ export default function ProductForm({
       return;
     }
 
-    if (!form.slug.trim()) {
+    if (
+      product?.id &&
+      !form.slug.trim()
+    ) {
       setError(
-        "Enter the product name before uploading images."
+        "Product slug is required before uploading images."
       );
       return;
     }
@@ -351,26 +336,26 @@ export default function ProductForm({
         file
       );
 
-      formData.append(
-        "slug",
-        form.slug
-      );
+      if (product?.id) {
+        formData.append(
+          "slug",
+          form.slug
+        );
+      } else {
+        formData.append(
+          "draftId",
+          draftId
+        );
+      }
 
-      const response =
+      const data =
         await apiFetch(
-          `${API_URL}/api/admin/uploads/product-image`,
+          "/api/admin/uploads/product-image",
           {
             method: "POST",
-
-            credentials:
-              "include",
-
             body: formData,
           }
         );
-
-      const data =
-        await response;
 
       setForm(
         (current) => ({
@@ -438,20 +423,19 @@ export default function ProductForm({
       setCreatingColor(true);
       setError("");
 
-      const response = await apiPost(`${API_URL}/api/admin/colors`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: newColor.name.trim(),
-          hex: newColor.hex.toUpperCase(),
-          filamentCode: newColor.filamentCode.trim() || undefined,
-        }),
-      });
-
-      const data = await response;
+      const data =
+        await apiPost(
+          "/api/admin/colors",
+          {
+            name:
+              newColor.name.trim(),
+            hex:
+              newColor.hex.toUpperCase(),
+            filamentCode:
+              newColor.filamentCode.trim() ||
+              undefined,
+          }
+        );
 
       setCatalog((current) => ({
         ...current,
@@ -489,19 +473,18 @@ export default function ProductForm({
       setCreatingFont(true);
       setError("");
 
-      const response = await apiPost(`${API_URL}/api/admin/fonts`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: newFont.name.trim(),
-          bordered: Boolean(newFont.bordered),
-        }),
-      });
-
-      const data = await response;
+      const data =
+        await apiPost(
+          "/api/admin/fonts",
+          {
+            name:
+              newFont.name.trim(),
+            bordered:
+              Boolean(
+                newFont.bordered
+              ),
+          }
+        );
 
       setCatalog((current) => ({
         ...current,
@@ -574,6 +557,11 @@ export default function ProductForm({
         fontIds:
           form.fontIds,
 
+        draftId:
+          product?.id
+            ? undefined
+            : draftId,
+
         images:
           form.images
             .filter(
@@ -591,6 +579,7 @@ export default function ProductForm({
 
       const isEditing =
         Boolean(product?.id);
+
       let data;
 
       if (isEditing) {
