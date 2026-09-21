@@ -91,31 +91,24 @@ export default function CheckoutPage() {
         const orderResponse = await apiPost(
           `${API_URL}/api/orders`,
           {
-            method: "POST",
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              // items: cart,
-              items: cart.map(
-                (item) => ({
-                  productId: item.productId,
-                  quantity: item.quantity,
-                  keys: item.keys,
-                  color: item.color,
-                  font: item.font,
-                  characters: item.characters,
-                })
-              ),
-              shippingAddress: {
-                name: customer.name,
-                address: customer.address,
-                postalCode: customer.postalCode,
-                city: customer.city,
-                country: customer.country
-              }
-            })
+            // items: cart,
+            items: cart.map(
+              (item) => ({
+                productId: item.productId,
+                quantity: item.quantity,
+                keys: item.keys,
+                color: item.color,
+                font: item.font,
+                characters: item.characters,
+              })
+            ),
+            shippingAddress: {
+              name: customer.name,
+              address: customer.address,
+              postalCode: customer.postalCode,
+              city: customer.city,
+              country: customer.country
+            }
           }
         );
 
@@ -123,22 +116,13 @@ export default function CheckoutPage() {
         orderId = order.id;
         setCreatedOrderId(order.id);
       }
-      
+
       const paymentResponse = await apiPost(
         `${API_URL}/api/payments/create`,
         {
-          method: "POST",
-          credentials: "include",
-
-          headers: {
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify({
-            orderId,
-            method: paymentMethod,
-            mobileNumber: customer.phone,
-          }),
+          orderId,
+          method: paymentMethod,
+          mobileNumber: customer.phone,
         }
       );
 
@@ -214,15 +198,8 @@ export default function CheckoutPage() {
       const response = await apiPost(
         `${API_URL}/api/shipping/calculate`,
         {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            postalCode,
-            weightGrams: totalWeightGrams,
-          }),
+          postalCode,
+          weightGrams: totalWeightGrams,
         }
       );
 

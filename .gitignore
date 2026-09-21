@@ -98,3 +98,5 @@ coverage/
 # =========================
 backend/uploads/products/*
 !backend/uploads/products/.gitkeep
+backend/uploads/tmp/*
+!backend/uploads/tmp/.gitkeep

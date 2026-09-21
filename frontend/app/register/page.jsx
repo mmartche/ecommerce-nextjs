@@ -52,16 +52,9 @@ export default function RegisterPage() {
       const response = await apiPost(
         `${API_URL}/api/auth/register`,
         {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            name: form.name,
-            email: form.email,
-            password: form.password
-          })
+          name: form.name,
+          email: form.email,
+          password: form.password
         }
       );
 

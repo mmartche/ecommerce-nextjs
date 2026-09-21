@@ -20,19 +20,21 @@ export function AuthProvider({ children }) {
 
   async function refreshUser() {
     try {
-      const response = await apiGet(
+      const data = await apiGet(
         `${API_URL}/api/auth/me`,
         {
           credentials: "include",
         }
       );
 
-      const data = await response;
-
       setUser(data);
 
       return data;
     } catch (error) {
+      if (error.status === 401) {
+        setUser(null);
+        return null;
+      }
       console.error("Failed to refresh user:", error);
 
       setUser(null);
@@ -46,15 +48,11 @@ export function AuthProvider({ children }) {
     const response = await apiPost(
       `${API_URL}/api/auth/login`,
       {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
+        email,
+        password,
+      },
+      {
+        showErrorToast: false,
       }
     );
 
@@ -68,11 +66,7 @@ export function AuthProvider({ children }) {
   async function logout() {
     try {
       await apiPost(
-        `${API_URL}/api/auth/logout`,
-        {
-          method: "POST",
-          credentials: "include",
-        }
+        `${API_URL}/api/auth/logout`
       );
     } finally {
       setUser(null);
