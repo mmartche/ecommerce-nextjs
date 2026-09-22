@@ -9,6 +9,7 @@ import {
   apiPatch,
   apiPost,
 } from "@/lib/api";
+import { SUPPORTED_LOCALES } from "../../config/locales"
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -53,12 +54,7 @@ const EMPTY_FORM = {
   colorIds: [],
   fontIds: [],
   images: [],
-  translations: {
-    pt: {
-      name: "",
-      description: "",
-    },
-  },
+  translations: {},
 };
 
 export default function ProductForm({
@@ -105,11 +101,6 @@ export default function ProductForm({
     name: "",
     bordered: false,
   });
-  const ptName =
-    form.translations.pt.name.trim();
-
-  const ptDescription =
-    form.translations.pt.description.trim();
 
   useEffect(() => {
     loadCatalog();
@@ -120,10 +111,20 @@ export default function ProductForm({
       return;
     }
 
-    const ptTranslation =
-      product.translations?.find(
-        (translation) =>
-          translation.locale === "pt"
+    const translations =
+      Object.fromEntries(
+        (product.translations || []).map(
+          (translation) => [
+            translation.locale,
+            {
+              name:
+                translation.name || "",
+
+              description:
+                translation.description || "",
+            },
+          ]
+        )
       );
 
     setForm({
@@ -168,15 +169,7 @@ export default function ProductForm({
           })
         ) || [],
 
-      translations: {
-        pt: {
-          name:
-            ptTranslation?.name || "",
-
-          description:
-            ptTranslation?.description || "",
-        },
-      },
+      translations,
     });
 
     setSlugEdited(true);
@@ -604,20 +597,33 @@ export default function ProductForm({
             })),
 
         translations:
-          ptName || ptDescription
-            ? [
-              {
-                locale: "pt",
+          Object.entries(
+            form.translations
+          )
+            .filter(
+              ([
+                locale,
+                translation,
+              ]) =>
+                translation.name?.trim() ||
+                translation.description?.trim()
+            )
+            .map(
+              ([
+                locale,
+                translation,
+              ]) => ({
+                locale,
+
                 name:
-                  ptName ||
+                  translation.name?.trim() ||
                   form.name.trim(),
 
                 description:
-                  ptDescription ||
+                  translation.description?.trim() ||
                   form.description.trim(),
-              },
-            ]
-            : [],
+              })
+            ),
       };
 
       const isEditing =
@@ -667,9 +673,9 @@ export default function ProductForm({
         ...current.translations,
 
         [locale]: {
-          ...current.translations[
-          locale
-          ],
+          ...(current.translations[
+            locale
+          ] || {}),
 
           [field]: value,
         },
@@ -744,54 +750,77 @@ export default function ProductForm({
           />
         </label>
 
-        <section style={styles.card}>
-          <h2>
-            Portuguese translation
-          </h2>
+        {SUPPORTED_LOCALES.map(
+          (language) => {
+            const translation =
+              form.translations[
+              language.code
+              ] || {
+                name: "",
+                description: "",
+              };
 
-          <p style={styles.muted}>
-            Optional. If empty, the default product
-            information will be used.
-          </p>
+            return (
+              <section
+                key={language.code}
+                style={styles.card}
+              >
+                <h2>
+                  {language.label}
+                </h2>
 
-          <label style={styles.label}>
-            Name (PT)
+                <p style={styles.muted}>
+                  Optional translation.
+                  Empty fields use the
+                  default product information.
+                </p>
 
-            <input
-              value={
-                form.translations.pt.name
-              }
-              onChange={(event) =>
-                updateTranslation(
-                  "pt",
-                  "name",
-                  event.target.value
-                )
-              }
-              style={styles.input}
-            />
-          </label>
+                <label
+                  style={styles.label}
+                >
+                  Name ({language.code.toUpperCase()})
 
-          <label style={styles.label}>
-            Description (PT)
+                  <input
+                    value={
+                      translation.name
+                    }
+                    onChange={(event) =>
+                      updateTranslation(
+                        language.code,
+                        "name",
+                        event.target.value
+                      )
+                    }
+                    style={styles.input}
+                  />
+                </label>
 
-            <textarea
-              value={
-                form.translations.pt
-                  .description
-              }
-              onChange={(event) =>
-                updateTranslation(
-                  "pt",
-                  "description",
-                  event.target.value
-                )
-              }
-              rows={7}
-              style={styles.textarea}
-            />
-          </label>
-        </section>
+                <label
+                  style={styles.label}
+                >
+                  Description ({language.code.toUpperCase()})
+
+                  <textarea
+                    value={
+                      translation.description
+                    }
+                    onChange={(event) =>
+                      updateTranslation(
+                        language.code,
+                        "description",
+                        event.target.value
+                      )
+                    }
+                    rows={7}
+                    style={
+                      styles.textarea
+                    }
+                  />
+                </label>
+              </section>
+            );
+          }
+        )}
 
         <label style={styles.label}>
           Weight Grams

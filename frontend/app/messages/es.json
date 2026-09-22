@@ -1,0 +1,120 @@
+{
+    "Header": {
+        "home": "Inicio",
+        "products": "Productos",
+        "account": "Mi cuenta",
+        "helcome": "Hola",
+        "login": "Iniciar sesión",
+        "logout": "Cerrar sesión"
+    },
+    "Home": {
+        "title": "Productos personalizados impresos en 3D",
+        "subtitle": "Elige tu producto favorito y personalízalo.",
+        "viewProduct": "Ver producto",
+        "noProducts": "No hay productos disponibles.",
+        "loading": "Cargando"
+    },
+    "Product": {
+        "chooseColor": "Elegir color",
+        "chooseFont": "Elegir fuente",
+        "characters": "Caracteres",
+        "selectedConfiguration": "Configuración seleccionada",
+        "keys": "Teclas",
+        "color": "Color",
+        "font": "Fuente",
+        "weight": "Peso",
+        "quantity": "Cantidad",
+        "addToCart": "Añadir al carrito",
+        "addedToCart": "Añadido al carrito ✓",
+        "adding": "Añadiendo...",
+        "price": "Precio",
+        "description": "Descripción",
+        "available": "Disponible",
+        "unavailable": "No disponible"
+    },
+    "Cart": {
+        "title": "Tu carrito",
+        "empty": "Tu carrito está vacío.",
+        "continueShopping": "Seguir comprando",
+        "quantity": "Cantidad",
+        "remove": "Eliminar",
+        "subtotal": "Subtotal",
+        "checkout": "Ir al pago"
+    },
+    "Checkout": {
+        "title": "Finalizar compra",
+        "customerDetails": "Datos del cliente",
+        "name": "Nombre",
+        "email": "Correo electrónico",
+        "phone": "Teléfono",
+        "address": "Dirección",
+        "postalCode": "Código postal",
+        "city": "Ciudad",
+        "country": "País",
+        "orderSummary": "Resumen del pedido",
+        "subtotal": "Subtotal",
+        "shipping": "Envío",
+        "total": "Total",
+        "placeOrder": "Realizar pedido",
+        "processing": "Procesando...",
+        "requiredFields": "Por favor, completa todos los campos obligatorios.",
+        "weight": "Peso",
+        "estimatedDelivery": "Entrega estimada",
+        "emptyCart": "Tu carrito está vacío.",
+        "invalidPostalCode": "Código postal no válido.",
+        "validPostalCode": "Introduce un código postal válido y calcula el envío."
+    },
+    "OrderSuccess": {
+        "title": "Pedido confirmado",
+        "message": "Gracias por tu compra.",
+        "orderNumber": "Número de pedido",
+        "continueShopping": "Seguir comprando",
+        "viewOrders": "Ver mis pedidos"
+    },
+    "Account": {
+        "title": "Mi cuenta",
+        "hello": "Hola, {name}",
+        "subtitle": "Gestiona tu cuenta y tus pedidos.",
+        "orders": "Mis pedidos",
+        "logout": "Cerrar sesión",
+        "name": "Nombre",
+        "role": "Rol",
+        "accountDetails": "Detalles de la cuenta",
+        "loadingAccount": "Cargando cuenta...",
+        "manageAccountAndOrders": "Gestiona tu cuenta y tus pedidos.",
+        "continueShoppingOrReview": "Sigue comprando o revisa tu carrito.",
+        "continueShopping": "Seguir comprando.",
+        "manageProducts": "Gestiona productos, clientes y pedidos.",
+        "adminDashboard": "Panel de administración"
+    },
+    "Orders": {
+        "title": "Mis pedidos",
+        "empty": "Todavía no tienes pedidos.",
+        "order": "Pedido",
+        "date": "Fecha",
+        "status": "Estado",
+        "total": "Total",
+        "view": "Ver pedido"
+    },
+    "Register": {
+        "title": "Crear cuenta",
+        "name": "Nombre",
+        "email": "Correo electrónico",
+        "password": "Contraseña",
+        "confirmPassword": "Confirmar contraseña",
+        "submit": "Registrarse",
+        "loading": "Creando cuenta...",
+        "alreadyAccount": "¿Ya tienes una cuenta?",
+        "passwordMismatch": "Las contraseñas no coinciden.",
+        "passwordLength": "La contraseña debe contener al menos 8 caracteres."
+    },
+    "Login": {
+        "title": "Iniciar sesión",
+        "email": "Correo electrónico",
+        "password": "Contraseña",
+        "submit": "Iniciar sesión",
+        "loading": "Iniciando sesión...",
+        "noAccount": "¿No tienes una cuenta?",
+        "register": "Crear cuenta"
+    }
+}

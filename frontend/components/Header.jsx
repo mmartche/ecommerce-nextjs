@@ -5,6 +5,7 @@ import { useLanguage } from "../context/LanguageContext";
 import Link from "next/link";
 import CartButton from "./CartButton";
 import { useAuth } from "../context/AuthContext";
+import { SUPPORTED_LOCALES } from "@/config/locales";
 
 export default function Header() {
   const { user, loading } = useAuth();
@@ -106,13 +107,16 @@ export default function Header() {
               )
             }
           >
-            <option value="en">
-              English
-            </option>
-
-            <option value="pt">
-              Português
-            </option>
+            {SUPPORTED_LOCALES.map(
+              (language) => (
+                <option
+                  key={language.code}
+                  value={language.code}
+                >
+                  {language.label}
+                </option>
+              )
+            )}
           </select>
         </nav>
       </div>

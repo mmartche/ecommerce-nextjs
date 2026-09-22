@@ -12,6 +12,8 @@ import {
 
 import en from "../app/messages/en.json";
 import pt from "../app/messages/pt.json";
+import es from "../app/messages/es.json";
+import fr from "../app/messages/fr.json";
 
 const LanguageContext =
     createContext(null);
@@ -19,6 +21,8 @@ const LanguageContext =
 const messages = {
     en,
     pt,
+    es,
+    fr,
 };
 
 export function LanguageProvider({

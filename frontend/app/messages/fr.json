@@ -1,0 +1,120 @@
+{
+    "Header": {
+        "home": "Accueil",
+        "products": "Produits",
+        "account": "Mon compte",
+        "helcome": "Bonjour",
+        "login": "Connexion",
+        "logout": "Déconnexion"
+    },
+    "Home": {
+        "title": "Produits personnalisés imprimés en 3D",
+        "subtitle": "Choisissez votre produit préféré et personnalisez-le.",
+        "viewProduct": "Voir le produit",
+        "noProducts": "Aucun produit disponible.",
+        "loading": "Chargement"
+    },
+    "Product": {
+        "chooseColor": "Choisir une couleur",
+        "chooseFont": "Choisir une police",
+        "characters": "Caractères",
+        "selectedConfiguration": "Configuration sélectionnée",
+        "keys": "Touches",
+        "color": "Couleur",
+        "font": "Police",
+        "weight": "Poids",
+        "quantity": "Quantité",
+        "addToCart": "Ajouter au panier",
+        "addedToCart": "Ajouté au panier ✓",
+        "adding": "Ajout en cours...",
+        "price": "Prix",
+        "description": "Description",
+        "available": "Disponible",
+        "unavailable": "Indisponible"
+    },
+    "Cart": {
+        "title": "Votre panier",
+        "empty": "Votre panier est vide.",
+        "continueShopping": "Continuer vos achats",
+        "quantity": "Quantité",
+        "remove": "Supprimer",
+        "subtotal": "Sous-total",
+        "checkout": "Passer à la commande"
+    },
+    "Checkout": {
+        "title": "Paiement",
+        "customerDetails": "Informations client",
+        "name": "Nom",
+        "email": "E-mail",
+        "phone": "Téléphone",
+        "address": "Adresse",
+        "postalCode": "Code postal",
+        "city": "Ville",
+        "country": "Pays",
+        "orderSummary": "Récapitulatif de la commande",
+        "subtotal": "Sous-total",
+        "shipping": "Livraison",
+        "total": "Total",
+        "placeOrder": "Passer la commande",
+        "processing": "Traitement en cours...",
+        "requiredFields": "Veuillez remplir tous les champs obligatoires.",
+        "weight": "Poids",
+        "estimatedDelivery": "Livraison estimée",
+        "emptyCart": "Votre panier est vide.",
+        "invalidPostalCode": "Code postal invalide.",
+        "validPostalCode": "Veuillez saisir un code postal valide et calculer les frais de livraison."
+    },
+    "OrderSuccess": {
+        "title": "Commande confirmée",
+        "message": "Merci pour votre achat.",
+        "orderNumber": "Numéro de commande",
+        "continueShopping": "Continuer vos achats",
+        "viewOrders": "Voir mes commandes"
+    },
+    "Account": {
+        "title": "Mon compte",
+        "hello": "Bonjour, {name}",
+        "subtitle": "Gérez votre compte et vos commandes.",
+        "orders": "Mes commandes",
+        "logout": "Déconnexion",
+        "name": "Nom",
+        "role": "Rôle",
+        "accountDetails": "Détails du compte",
+        "loadingAccount": "Chargement du compte...",
+        "manageAccountAndOrders": "Gérez votre compte et vos commandes.",
+        "continueShoppingOrReview": "Continuez vos achats ou consultez votre panier.",
+        "continueShopping": "Continuer vos achats.",
+        "manageProducts": "Gérez les produits, les clients et les commandes.",
+        "adminDashboard": "Tableau de bord administrateur"
+    },
+    "Orders": {
+        "title": "Mes commandes",
+        "empty": "Vous n'avez encore aucune commande.",
+        "order": "Commande",
+        "date": "Date",
+        "status": "Statut",
+        "total": "Total",
+        "view": "Voir la commande"
+    },
+    "Register": {
+        "title": "Créer un compte",
+        "name": "Nom",
+        "email": "E-mail",
+        "password": "Mot de passe",
+        "confirmPassword": "Confirmer le mot de passe",
+        "submit": "S'inscrire",
+        "loading": "Création du compte...",
+        "alreadyAccount": "Vous avez déjà un compte ?",
+        "passwordMismatch": "Les mots de passe ne correspondent pas.",
+        "passwordLength": "Le mot de passe doit contenir au moins 8 caractères."
+    },
+    "Login": {
+        "title": "Connexion",
+        "email": "E-mail",
+        "password": "Mot de passe",
+        "submit": "Se connecter",
+        "loading": "Connexion en cours...",
+        "noAccount": "Vous n'avez pas de compte ?",
+        "register": "Créer un compte"
+    }
+}
