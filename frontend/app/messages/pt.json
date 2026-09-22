@@ -11,7 +11,8 @@
         "title": "Produtos personalizados impressos em 3D",
         "subtitle": "Escolha o seu produto favorito e personalize-o.",
         "viewProduct": "Ver produto",
-        "noProducts": "Nenhum produto disponível."
+        "noProducts": "Nenhum produto disponível.",
+        "loading": "loading"
     },
     "Product": {
         "chooseColor": "Escolher cor",

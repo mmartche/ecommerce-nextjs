@@ -1,14 +1,52 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { imageUrl } from "../lib/imageUrl";
+import { useLanguage } from "@/context/LanguageContext";
+import { apiGet } from "@/lib/api";
+import { imageUrl } from "@/lib/imageUrl";
 
-export default function HomeContent({
-    products,
-}) {
-    const t =
-        useTranslations("Home");
+export default function HomeContent() {
+    const t = useTranslations("Home");
+
+    const { locale } = useLanguage();
+
+    const [products, setProducts] = useState([]);
+
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function loadProducts() {
+            try {
+                setLoading(true);
+
+                const data =
+                    await apiGet(
+                        `/api/products?locale=${locale}`
+                    );
+
+                setProducts(data);
+            } catch (error) {
+                console.error(
+                    "Failed to load products:",
+                    error
+                );
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        loadProducts();
+    }, [locale]);
+
+    if (loading) {
+        return (
+            <main>
+                {t("loading")}
+            </main>
+        );
+    }
 
     return (
         <main
@@ -50,8 +88,7 @@ export default function HomeContent({
                                 style={{
                                     textDecoration:
                                         "none",
-                                    color:
-                                        "inherit",
+                                    color: "inherit",
                                 }}
                             >
                                 <article
@@ -66,14 +103,12 @@ export default function HomeContent({
                                 >
                                     <div
                                         style={{
-                                            height:
-                                                "200px",
+                                            height: "200px",
                                             background:
                                                 "#f5f5f5",
                                             borderRadius:
                                                 "8px",
-                                            display:
-                                                "flex",
+                                            display: "flex",
                                             alignItems:
                                                 "center",
                                             justifyContent:

@@ -241,6 +241,7 @@ export class AdminService {
           },
 
           images: true,
+          translations: true,
         },
       });
 
@@ -391,6 +392,21 @@ export class AdminService {
                     dto.name,
                 }),
               ),
+          },
+          translations: {
+            create:
+              dto.translations?.map(
+                (translation) => ({
+                  locale:
+                    translation.locale,
+
+                  name:
+                    translation.name.trim(),
+
+                  description:
+                    translation.description.trim(),
+                }),
+              ) ?? [],
           },
         },
 
@@ -545,6 +561,37 @@ export class AdminService {
             },
           },
         });
+
+        for (
+          const translation
+          of dto.translations ?? []
+        ) {
+          await tx.productTranslation.upsert({
+            where: {
+              productId_locale: {
+                productId: id,
+
+                locale: translation.locale,
+              },
+            },
+
+            update: {
+              name: translation.name.trim(),
+
+              description: translation.description.trim(),
+            },
+
+            create: {
+              productId: id,
+
+              locale: translation.locale,
+
+              name: translation.name.trim(),
+
+              description: translation.description.trim(),
+            },
+          });
+        }
       },
     );
 

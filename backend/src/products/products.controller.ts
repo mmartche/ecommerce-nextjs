@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Param,
+  Query,
 } from '@nestjs/common';
 
 import { ProductsService } from './products.service';
@@ -11,19 +12,27 @@ export class ProductsController {
   constructor(
     private readonly productsService:
       ProductsService,
-  ) {}
+  ) { }
 
   @Get()
-  findAll() {
-    return this.productsService.findAll();
+  findAll(
+    @Query("locale")
+    locale = "en",
+  ) {
+    return this.productsService.findAll(locale);
   }
 
   @Get(':slug')
-  findOne(
-    @Param('slug') slug: string,
+  findBySlug(
+    @Param('slug')
+    slug: string,
+
+    @Query('locale')
+    locale = 'en',
   ) {
     return this.productsService.findBySlug(
       slug,
+      locale,
     );
   }
 }

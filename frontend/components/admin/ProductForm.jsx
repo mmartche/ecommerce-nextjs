@@ -53,6 +53,12 @@ const EMPTY_FORM = {
   colorIds: [],
   fontIds: [],
   images: [],
+  translations: {
+    pt: {
+      name: "",
+      description: "",
+    },
+  },
 };
 
 export default function ProductForm({
@@ -99,6 +105,11 @@ export default function ProductForm({
     name: "",
     bordered: false,
   });
+  const ptName =
+    form.translations.pt.name.trim();
+
+  const ptDescription =
+    form.translations.pt.description.trim();
 
   useEffect(() => {
     loadCatalog();
@@ -108,6 +119,12 @@ export default function ProductForm({
     if (!product) {
       return;
     }
+
+    const ptTranslation =
+      product.translations?.find(
+        (translation) =>
+          translation.locale === "pt"
+      );
 
     setForm({
       name: product.name || "",
@@ -150,6 +167,16 @@ export default function ProductForm({
             alt: image.alt || "",
           })
         ) || [],
+
+      translations: {
+        pt: {
+          name:
+            ptTranslation?.name || "",
+
+          description:
+            ptTranslation?.description || "",
+        },
+      },
     });
 
     setSlugEdited(true);
@@ -575,6 +602,22 @@ export default function ProductForm({
               alt:
                 image.alt.trim(),
             })),
+
+        translations:
+          ptName || ptDescription
+            ? [
+              {
+                locale: "pt",
+                name:
+                  ptName ||
+                  form.name.trim(),
+
+                description:
+                  ptDescription ||
+                  form.description.trim(),
+              },
+            ]
+            : [],
       };
 
       const isEditing =
@@ -610,6 +653,28 @@ export default function ProductForm({
 
   if (loading) {
     return <p>Loading...</p>;
+  }
+
+  function updateTranslation(
+    locale,
+    field,
+    value
+  ) {
+    setForm((current) => ({
+      ...current,
+
+      translations: {
+        ...current.translations,
+
+        [locale]: {
+          ...current.translations[
+          locale
+          ],
+
+          [field]: value,
+        },
+      },
+    }));
   }
 
   return (
@@ -678,6 +743,55 @@ export default function ProductForm({
             }
           />
         </label>
+
+        <section style={styles.card}>
+          <h2>
+            Portuguese translation
+          </h2>
+
+          <p style={styles.muted}>
+            Optional. If empty, the default product
+            information will be used.
+          </p>
+
+          <label style={styles.label}>
+            Name (PT)
+
+            <input
+              value={
+                form.translations.pt.name
+              }
+              onChange={(event) =>
+                updateTranslation(
+                  "pt",
+                  "name",
+                  event.target.value
+                )
+              }
+              style={styles.input}
+            />
+          </label>
+
+          <label style={styles.label}>
+            Description (PT)
+
+            <textarea
+              value={
+                form.translations.pt
+                  .description
+              }
+              onChange={(event) =>
+                updateTranslation(
+                  "pt",
+                  "description",
+                  event.target.value
+                )
+              }
+              rows={7}
+              style={styles.textarea}
+            />
+          </label>
+        </section>
 
         <label style={styles.label}>
           Weight Grams

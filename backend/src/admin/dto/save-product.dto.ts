@@ -103,4 +103,25 @@ export class SaveProductDto {
   @IsOptional()
   @IsString()
   draftId?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({
+    each: true,
+  })
+  @Type(() => ProductTranslationDto)
+  translations?: ProductTranslationDto[];
+}
+
+export class ProductTranslationDto {
+  @IsString()
+  locale: string;
+
+  @IsString()
+  @MinLength(2)
+  name: string;
+
+  @IsString()
+  @MinLength(2)
+  description: string;
 }

@@ -9,9 +9,9 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ProductsService {
   constructor(
     private readonly prisma: PrismaService,
-  ) {}
+  ) { }
 
-  async findAll() {
+  async findAll(locale = "en") {
     const products =
       await this.prisma.product.findMany({
         where: {
@@ -32,6 +32,11 @@ export class ProductsService {
           },
 
           images: true,
+          translations: {
+            where: {
+              locale,
+            },
+          },
         },
 
         orderBy: {
@@ -40,23 +45,41 @@ export class ProductsService {
       });
 
     return products.map(
-      (product) => ({
-        ...product,
+      (product) => {
+        const translation =
+          product.translations[0];
 
-        colors:
-          product.colors.map(
-            (item) => item.color,
-          ),
+        return {
+          ...product,
 
-        fonts:
-          product.fonts.map(
-            (item) => item.font,
-          ),
-      }),
+          name:
+            translation?.name ??
+            product.name,
+
+          description:
+            translation?.description ??
+            product.description,
+
+          colors:
+            product.colors.map(
+              (item) =>
+                item.color,
+            ),
+
+          fonts:
+            product.fonts.map(
+              (item) =>
+                item.font,
+            ),
+
+          translations:
+            undefined,
+        };
+      }
     );
   }
 
-  async findBySlug(slug: string) {
+  async findBySlug(slug: string, locale = 'en') {
     const product =
       await this.prisma.product.findUnique({
         where: {
@@ -77,6 +100,12 @@ export class ProductsService {
           },
 
           images: true,
+
+          translations: {
+            where: {
+              locale,
+            },
+          },
         },
       });
 
@@ -86,8 +115,19 @@ export class ProductsService {
       );
     }
 
+    const translation = product.translations[0];
+
     return {
       ...product,
+
+      name:
+        translation?.name ?? product.name,
+
+      description:
+        translation?.description ?? product.description,
+
+      translations:
+        undefined,
 
       colors:
         product.colors.map(

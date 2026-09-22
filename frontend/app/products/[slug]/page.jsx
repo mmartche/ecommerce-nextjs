@@ -5,6 +5,7 @@ import { addToCart } from "../../../lib/cart";
 import { imageUrl } from "../../../lib/imageUrl";
 import { apiGet } from "@/lib/api";
 import { useTranslations } from "next-intl";
+import { useLanguage } from "@/context/LanguageContext";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -37,17 +38,34 @@ export default function ProductPage({ params }) {
       : Number(product?.weightGrams || 0);
 
   const t = useTranslations("Product");
+  const { locale } = useLanguage();
+
+  const [slug, setSlug] = useState(null);
 
   useEffect(() => {
+    async function loadParams() {
+      const result =
+        await params;
+
+      setSlug(
+        result.slug
+      );
+    }
+
+    loadParams();
+  }, [params]);
+
+  useEffect(() => {
+    if (!slug) {
+      return;
+    }
     async function loadProduct() {
       try {
-        const { slug } = await params;
+        setLoading(true);
 
-        const response = await apiGet(
-          `${API_URL}/api/products/${slug}`
+        const data = await apiGet(
+          `${API_URL}/api/products/${slug}?locale=${locale}`
         );
-
-        const data = await response;
 
         setProduct(data);
 
@@ -68,7 +86,7 @@ export default function ProductPage({ params }) {
     }
 
     loadProduct();
-  }, []);
+  }, [slug, locale]);
 
   useEffect(() => {
     setSelectedImage(0);

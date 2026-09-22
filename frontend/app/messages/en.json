@@ -11,7 +11,8 @@
         "title": "Custom 3D printed products",
         "subtitle": "Choose your favorite product and customize it.",
         "viewProduct": "View product",
-        "noProducts": "No products available."
+        "noProducts": "No products available.",
+        "loading": "loading"
     },
     "Product": {
         "chooseColor": "Choose color",
