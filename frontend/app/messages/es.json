@@ -106,7 +106,8 @@
         "loading": "Creando cuenta...",
         "alreadyAccount": "¿Ya tienes una cuenta?",
         "passwordMismatch": "Las contraseñas no coinciden.",
-        "passwordLength": "La contraseña debe contener al menos 8 caracteres."
+        "passwordLength": "La contraseña debe contener al menos 8 caracteres.",
+        "login": "Iniciar sesión"
     },
     "Login": {
         "title": "Iniciar sesión",

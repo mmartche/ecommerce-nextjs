@@ -106,7 +106,8 @@
         "loading": "Creating account...",
         "alreadyAccount": "Already have an account?",
         "passwordMismatch": "Passwords do not match.",
-        "passwordLength": "Password must contain at least 8 characters."
+        "passwordLength": "Password must contain at least 8 characters.",
+        "login": "Login"
     },
     "Login": {
         "title": "Login",

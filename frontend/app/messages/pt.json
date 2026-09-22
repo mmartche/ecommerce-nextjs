@@ -106,7 +106,8 @@
         "loading": "A criar conta...",
         "alreadyAccount": "Já tem uma conta?",
         "passwordMismatch": "As palavras-passe não coincidem.",
-        "passwordLength": "A palavra-passe deve ter pelo menos 8 caracteres."
+        "passwordLength": "A palavra-passe deve ter pelo menos 8 caracteres.",
+        "login": "Entrar"
     },
     "Login": {
         "title": "Entrar",

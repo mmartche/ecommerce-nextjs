@@ -106,7 +106,8 @@
         "loading": "Création du compte...",
         "alreadyAccount": "Vous avez déjà un compte ?",
         "passwordMismatch": "Les mots de passe ne correspondent pas.",
-        "passwordLength": "Le mot de passe doit contenir au moins 8 caractères."
+        "passwordLength": "Le mot de passe doit contenir au moins 8 caractères.",
+        "login": "Se connecter"
     },
     "Login": {
         "title": "Connexion",

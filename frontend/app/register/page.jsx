@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { apiGet, apiPost } from "@/lib/api";
+import { apiPost } from "@/lib/api";
 import { useTranslations } from "next-intl";
 
 const API_URL =
@@ -12,24 +12,28 @@ const API_URL =
 
 export default function RegisterPage() {
   const router = useRouter();
+  const t = useTranslations("Register");
 
   const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
   });
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const t = useTranslations("Register");
 
   function handleChange(event) {
-    const { name, value } = event.target;
+    const {
+      name,
+      value,
+    } = event.target;
+
 
     setForm((current) => ({
       ...current,
-      [name]: value
+      [name]: value,
     }));
   }
 
@@ -38,36 +42,52 @@ export default function RegisterPage() {
 
     setError("");
 
-    if (form.password !== form.confirmPassword) {
-      setError(t("passwordMismatch"));
+    if (
+      form.password !==
+      form.confirmPassword
+    ) {
+      setError(
+        t("passwordMismatch")
+      );
       return;
     }
 
-    if (form.password.length < 8) {
-      setError(t("passwordLength"));
+    if (
+      form.password.length < 8
+    ) {
+      setError(
+        t("passwordLength")
+      );
       return;
     }
-
-    setLoading(true);
 
     try {
-      const response = await apiPost(
+      setLoading(true);
+
+      await apiPost(
         `${API_URL}/api/auth/register`,
         {
-          name: form.name,
-          email: form.email,
-          password: form.password
+          name:
+            form.name.trim(),
+
+          email:
+            form.email.trim(),
+
+          password:
+            form.password,
         }
       );
 
-      const data = await response;
-
       router.push("/login");
     } catch (error) {
-      setError(error.message);
+      setError(
+        error.message
+      );
     } finally {
       setLoading(false);
     }
+
+
   }
 
   return (
@@ -75,66 +95,112 @@ export default function RegisterPage() {
       style={{
         maxWidth: "420px",
         margin: "60px auto",
-        padding: "20px"
+        padding: "20px",
       }}
-    >
-      <h1>{t("title")}</h1>
+    > <h1>
+        {t("title")} </h1>
 
-      <form onSubmit={handleSubmit}>
+
+      <form
+        onSubmit={
+          handleSubmit
+        }
+      >
         <input
-          name={t("name")}
-          placeholder="Name"
-          value={form.name}
-          onChange={handleChange}
+          name="name"
+          type="text"
+          placeholder={
+            t("name")
+          }
+          value={
+            form.name
+          }
+          onChange={
+            handleChange
+          }
           required
-          style={inputStyle}
+          style={
+            inputStyle
+          }
         />
 
         <input
           name="email"
           type="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
+          placeholder={
+            t("email")
+          }
+          value={
+            form.email
+          }
+          onChange={
+            handleChange
+          }
           required
-          style={inputStyle}
+          style={
+            inputStyle
+          }
         />
 
         <input
           name="password"
           type="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={handleChange}
+          placeholder={
+            t("password")
+          }
+          value={
+            form.password
+          }
+          onChange={
+            handleChange
+          }
           required
-          style={inputStyle}
+          style={
+            inputStyle
+          }
         />
 
         <input
           name="confirmPassword"
           type="password"
-          placeholder="Confirm password"
+          placeholder={t("confirmPassword")}
           value={form.confirmPassword}
-          onChange={handleChange}
+          onChange={
+            handleChange
+          }
           required
-          style={inputStyle}
+          style={
+            inputStyle
+          }
         />
 
         {error && (
-          <p style={{ color: "red" }}>
+          <p
+            style={{
+              color: "red",
+            }}
+          >
             {error}
           </p>
         )}
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={
+            loading
+          }
           style={{
             width: "100%",
-            padding: "14px"
+            padding: "14px",
+            cursor:
+              loading
+                ? "not-allowed"
+                : "pointer",
           }}
         >
-          {loading ? t("loading") : t("submit")}
+          {loading
+            ? t("loading")
+            : t("submit")}
         </button>
       </form>
 
