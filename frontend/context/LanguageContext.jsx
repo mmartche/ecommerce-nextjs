@@ -53,6 +53,7 @@ export function LanguageProvider({
                 messages={
                     messages[locale]
                 }
+                timeZone="Europe/Lisbon"
             >
                 {children}
             </NextIntlClientProvider>

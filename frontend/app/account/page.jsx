@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
+import { useTranslations } from "next-intl";
 
 export default function AccountPage() {
   const router = useRouter();
@@ -11,6 +12,7 @@ export default function AccountPage() {
     loading,
     logout
   } = useAuth();
+  const t = useTranslations("Account");
 
   async function handleLogout() {
     await logout();
@@ -21,7 +23,7 @@ export default function AccountPage() {
   if (loading) {
     return (
       <main style={styles.container}>
-        <p>Loading account...</p>
+        <p>{t("loadingAccount")}</p>
       </main>
     );
   }
@@ -35,15 +37,15 @@ export default function AccountPage() {
       <div style={styles.header}>
         <div>
           <p style={styles.eyebrow}>
-            MY ACCOUNT
+            {t("title")}
           </p>
 
           <h1 style={styles.title}>
-            Hello, {user.name}
+            {t("hello", { name: user.name })}
           </h1>
 
           <p style={styles.subtitle}>
-            Manage your account and orders.
+            {t("manageAccountAndOrders")}
           </p>
         </div>
 
@@ -51,19 +53,19 @@ export default function AccountPage() {
           onClick={handleLogout}
           style={styles.logoutButton}
         >
-          Logout
+          {t("logout")}
         </button>
       </div>
 
       <div style={styles.grid}>
         <section style={styles.card}>
           <h2 style={styles.cardTitle}>
-            Account details
+            {t("accountDetails")}
           </h2>
 
           <div style={styles.field}>
             <span style={styles.label}>
-              Name
+              {t("name")}
             </span>
 
             <strong>{user.name}</strong>
@@ -79,7 +81,7 @@ export default function AccountPage() {
 
           <div style={styles.field}>
             <span style={styles.label}>
-              Role
+              {t("role")}
             </span>
 
             <strong>{user.role}</strong>
@@ -88,12 +90,11 @@ export default function AccountPage() {
 
         <section style={styles.card}>
           <h2 style={styles.cardTitle}>
-            Orders
+            {t("orders")}
           </h2>
 
           <p style={styles.text}>
-            View your previous orders and
-            their current status.
+            {t("subtitle")}
           </p>
 
           <button
@@ -102,7 +103,7 @@ export default function AccountPage() {
             }
             style={styles.primaryButton}
           >
-            View orders
+            {t("orders")}
           </button>
         </section>
 
@@ -112,8 +113,7 @@ export default function AccountPage() {
           </h2>
 
           <p style={styles.text}>
-            Continue shopping or review
-            your cart.
+            {t("continueShoppingOrReview")}
           </p>
 
           <div style={styles.actions}>
@@ -125,7 +125,7 @@ export default function AccountPage() {
                 styles.secondaryButton
               }
             >
-              Continue shopping
+              {t("continueShopping")}
             </button>
 
             <button
@@ -146,8 +146,7 @@ export default function AccountPage() {
             </h2>
 
             <p style={styles.text}>
-              Manage products, customers
-              and orders.
+              {t("manageProducts")}
             </p>
 
             <button
@@ -156,7 +155,7 @@ export default function AccountPage() {
               }
               style={styles.primaryButton}
             >
-              Admin dashboard
+              {t("adminDashboard")}
             </button>
           </section>
         )}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiGet, apiPost } from "@/lib/api";
+import { useTranslations } from "next-intl";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -21,6 +22,7 @@ export default function RegisterPage() {
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const t = useTranslations("Register");
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -37,12 +39,12 @@ export default function RegisterPage() {
     setError("");
 
     if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match.");
+      setError(t("passwordMismatch"));
       return;
     }
 
     if (form.password.length < 8) {
-      setError("Password must contain at least 8 characters.");
+      setError(t("passwordLength"));
       return;
     }
 
@@ -76,11 +78,11 @@ export default function RegisterPage() {
         padding: "20px"
       }}
     >
-      <h1>Create Account</h1>
+      <h1>{t("title")}</h1>
 
       <form onSubmit={handleSubmit}>
         <input
-          name="name"
+          name={t("name")}
           placeholder="Name"
           value={form.name}
           onChange={handleChange}
@@ -132,14 +134,14 @@ export default function RegisterPage() {
             padding: "14px"
           }}
         >
-          {loading ? "Creating account..." : "Register"}
+          {loading ? t("loading") : t("submit")}
         </button>
       </form>
 
       <p>
-        Already have an account?{" "}
+        {t("alreadyAccount")}{" "}
         <Link href="/login">
-          Login
+          {t("login")}
         </Link>
       </p>
     </main>

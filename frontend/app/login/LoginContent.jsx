@@ -8,6 +8,7 @@ import {
 } from "next/navigation";
 
 import { useAuth } from "../../context/AuthContext";
+import { useTranslations } from "next-intl";
 
 export default function LoginContent() {
   const router = useRouter();
@@ -22,6 +23,7 @@ export default function LoginContent() {
   const [error, setError] = useState("");
   const [loading, setLoading] =
     useState(false);
+  const t = useTranslations("Login");
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -105,7 +107,7 @@ export default function LoginContent() {
       <p>
         Don't have an account?{" "}
         <Link href="/register">
-          Create account
+          {t("register")}
         </Link>
       </p>
     </main>

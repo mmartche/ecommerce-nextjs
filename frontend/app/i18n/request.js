@@ -21,6 +21,7 @@ export default getRequestConfig(
                         `../messages/${locale}.json`
                     )
                 ).default,
+            timeZone: "Europe/Lisbon",
         };
     }
 );

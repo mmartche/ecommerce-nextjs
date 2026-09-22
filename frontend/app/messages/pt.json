@@ -7,6 +7,94 @@
         "login": "Entrar",
         "logout": "Sair"
     },
+    "Home": {
+        "title": "Produtos personalizados impressos em 3D",
+        "subtitle": "Escolha o seu produto favorito e personalize-o.",
+        "viewProduct": "Ver produto",
+        "noProducts": "Nenhum produto disponível."
+    },
+    "Product": {
+        "chooseColor": "Escolher cor",
+        "chooseFont": "Escolher fonte",
+        "characters": "Characters",
+        "selectedConfiguration": "Selected configuration",
+        "keys": "Teclas",
+        "color": "Color",
+        "font": "Font",
+        "weight": "Weight",
+        "quantity": "Quantidade",
+        "addToCart": "Adicionar ao carrinho",
+        "addedToCart": "Added to Cart ✓",
+        "adding": "A adicionar...",
+        "price": "Preço",
+        "description": "Descrição",
+        "available": "Disponível",
+        "unavailable": "Indisponível"
+    },
+    "Cart": {
+        "title": "O seu carrinho",
+        "empty": "O seu carrinho está vazio.",
+        "continueShopping": "Continuar a comprar",
+        "quantity": "Quantidade",
+        "remove": "Remover",
+        "subtotal": "Subtotal",
+        "checkout": "Ir para o checkout"
+    },
+    "Checkout": {
+        "title": "Checkout",
+        "customerDetails": "Dados do cliente",
+        "name": "Nome",
+        "email": "Email",
+        "phone": "Telefone",
+        "address": "Morada",
+        "postalCode": "Código postal",
+        "city": "Cidade",
+        "country": "País",
+        "orderSummary": "Resumo da encomenda",
+        "subtotal": "Subtotal",
+        "shipping": "Envio",
+        "total": "Total",
+        "placeOrder": "Finalizar encomenda",
+        "processing": "A processar...",
+        "requiredFields": "Preencha todos os campos obrigatórios.",
+        "weight": "Weight",
+        "estimatedDelivery": "Estimated delivery",
+        "emptyCart": "Your cart is empty.",
+        "invalidPostalCode": "Invalid postal code.",
+        "validPostalCode": "Please enter a valid postal code and calculate shipping."
+    },
+    "OrderSuccess": {
+        "title": "Encomenda confirmada",
+        "message": "Obrigado pela sua compra.",
+        "orderNumber": "Número da encomenda",
+        "continueShopping": "Continuar a comprar",
+        "viewOrders": "Ver as minhas encomendas"
+    },
+    "Account": {
+        "title": "Minha conta",
+        "hello": "Olá, {name}",
+        "subtitle": "Gerencie a sua conta e as suas encomendas.",
+        "orders": "Minhas encomendas",
+        "logout": "Sair",
+        "name": "Name",
+        "role": "Role",
+        "accountDetails": "Account details",
+        "loadingAccount": "Loading account...",
+        "manageAccountAndOrders": "Manage your account and orders.",
+        "continueShoppingOrReview": "Continue shopping or review your cart.",
+        "continueShopping": "Continue shopping.",
+        "manageProducts": "Manage products, customers and orders.",
+        "adminDashboard": "Admin dashboard"
+    },
+    "Orders": {
+        "title": "Minhas encomendas",
+        "empty": "Ainda não tem encomendas.",
+        "order": "Encomenda",
+        "date": "Data",
+        "status": "Estado",
+        "total": "Total",
+        "view": "Ver encomenda"
+    },
     "Register": {
         "title": "Criar conta",
         "name": "Nome",
@@ -19,10 +107,13 @@
         "passwordMismatch": "As palavras-passe não coincidem.",
         "passwordLength": "A palavra-passe deve ter pelo menos 8 caracteres."
     },
-    "Product": {
-        "addToCart": "Adicionar ao carrinho",
-        "chooseColor": "Escolher cor",
-        "chooseFont": "Escolher fonte",
-        "keys": "Teclas"
+    "Login": {
+        "title": "Entrar",
+        "email": "Email",
+        "password": "Palavra-passe",
+        "submit": "Entrar",
+        "loading": "A entrar...",
+        "noAccount": "Ainda não tem conta?",
+        "register": "Criar conta"
     }
 }

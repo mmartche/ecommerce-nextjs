@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { addToCart } from "../../../lib/cart";
 import { imageUrl } from "../../../lib/imageUrl";
 import { apiGet } from "@/lib/api";
+import { useTranslations } from "next-intl";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -34,6 +35,8 @@ export default function ProductPage({ params }) {
       Number(product.weightPerKeyGrams) *
       keys
       : Number(product?.weightGrams || 0);
+
+  const t = useTranslations("Product");
 
   useEffect(() => {
     async function loadProduct() {
@@ -274,7 +277,7 @@ export default function ProductPage({ params }) {
 
           <hr />
 
-          <h3>Number of keys</h3>{" "}
+          <h3>{t("keys")}</h3>{" "}
           {keys}
 
           <p>
@@ -284,7 +287,7 @@ export default function ProductPage({ params }) {
 
           <hr />
 
-          <h3>Color</h3>
+          <h3>{t("chooseColor")}</h3>
 
           <div
             style={{
@@ -328,7 +331,7 @@ export default function ProductPage({ params }) {
 
           <hr />
 
-          <h3>Font</h3>
+          <h3>{t("chooseFont")}</h3>
 
           <div
             style={{
@@ -362,7 +365,7 @@ export default function ProductPage({ params }) {
 
           <hr />
           <label>
-            Characters
+            {t("characters")}
 
             <input
               value={characters}
@@ -377,19 +380,19 @@ export default function ProductPage({ params }) {
           </label>
           <hr />
 
-          <h3>Selected configuration</h3>
+          <h3>{t("selectedConfiguration")}</h3>
 
           <p>
-            <strong>Keys:</strong> {keys}
+            <strong>{t("keys")}:</strong> {keys}
           </p>
 
           <p>
-            <strong>Color:</strong>{" "}
+            <strong>{t("color")}:</strong>{" "}
             {selectedColor?.name}
           </p>
 
           <p>
-            <strong>Font:</strong>{" "}
+            <strong>{t("font")}:</strong>{" "}
             {selectedFont?.name}
             {selectedFont?.bordered
               ? " — With Border"
@@ -397,7 +400,7 @@ export default function ProductPage({ params }) {
           </p>
 
           <p>
-            <strong>Weight:</strong>{" "}
+            <strong>{t("weight")}:</strong>{" "}
             {calculatedWeightGrams} g
           </p>
 
@@ -419,7 +422,7 @@ export default function ProductPage({ params }) {
               keys > product.maxKeys
             }
           >
-            {addedToCart ? "Added to Cart ✓" : "Add to Cart"}
+            {addedToCart ? t("addedToCart") : t("addToCart")}
           </button>
         </div>
       </div>

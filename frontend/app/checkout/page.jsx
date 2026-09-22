@@ -6,6 +6,7 @@ import { getCart, clearCart } from "../../lib/cart";
 import { useAuth } from "../../context/AuthContext";
 import { formatWeight } from "../../lib/formatWeight";
 import { apiGet, apiPost } from "@/lib/api";
+import { useTranslations } from "next-intl";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -31,7 +32,7 @@ export default function CheckoutPage() {
   const [shippingLoading, setShippingLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("MBWAY");
   const [createdOrderId, setCreatedOrderId] = useState(null);
-
+  const t = useTranslations("Checkout");
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -70,12 +71,12 @@ export default function CheckoutPage() {
     }
 
     if (cart.length === 0) {
-      setError("Your cart is empty.");
+      setError(t("emptyCart"));
       return;
     }
     if (!shipping) {
       setError(
-        "Please enter a valid postal code and calculate shipping."
+        t("validPostalCode")
       );
 
       return;
@@ -164,7 +165,7 @@ export default function CheckoutPage() {
     const postalCode = customer.postalCode.trim();
 
     if (!/^\d{4}-\d{3}$/.test(postalCode)) {
-      setError("Invalid postal code.");
+      setError(t("invalidPostalCode"));
       return;
     }
 
@@ -230,7 +231,7 @@ export default function CheckoutPage() {
         padding: "50px 20px"
       }}
     >
-      <h1>Checkout</h1>
+      <h1>{t("title")}</h1>
 
       <div
         style={{
@@ -243,13 +244,13 @@ export default function CheckoutPage() {
           <h2>Customer information</h2>
 
           {[
-            ["name", "Name"],
-            ["email", "Email"],
-            ["phone", "Phone"],
-            ["address", "Address"],
-            ["postalCode", "Postal Code"],
-            ["city", "City"],
-            ["country", "Country"],
+            ["name", t("name")],
+            ["email", t("email")],
+            ["phone", t("phone")],
+            ["address", t("address")],
+            ["postalCode", t("postalCode")],
+            ["city", t("city")],
+            ["country", t("country")],
           ].map(([name, label]) => (
             <div
               key={name}
@@ -401,7 +402,7 @@ export default function CheckoutPage() {
         </form>
 
         <aside>
-          <h2>Order summary</h2>
+          <h2>{t("orderSummary")}</h2>
 
           {cart.map((item) => (
             <div
@@ -431,14 +432,14 @@ export default function CheckoutPage() {
                   </p>
 
                   <p>
-                    Weight:{" "}
+                    {t("weight")}:{" "}
                     {formatWeight(
                       shipping.weightGrams
                     )}
                   </p>
 
                   <p>
-                    Shipping:{" "}
+                    {t("shipping")}:{" "}
                     <strong>
                       €
                       {Number(
@@ -448,7 +449,7 @@ export default function CheckoutPage() {
                   </p>
 
                   <p>
-                    Estimated delivery:{" "}
+                    {t("estimatedDelivery")}:{" "}
                     {shipping.estimatedDelivery}
                   </p>
 

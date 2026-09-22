@@ -7,6 +7,94 @@
         "login": "Login",
         "logout": "Logout"
     },
+    "Home": {
+        "title": "Custom 3D printed products",
+        "subtitle": "Choose your favorite product and customize it.",
+        "viewProduct": "View product",
+        "noProducts": "No products available."
+    },
+    "Product": {
+        "chooseColor": "Choose color",
+        "chooseFont": "Choose font",
+        "characters": "Characters",
+        "selectedConfiguration": "Selected configuration",
+        "keys": "Keys",
+        "color": "Color",
+        "font": "Font",
+        "weight": "Weight",
+        "quantity": "Quantity",
+        "addToCart": "Add to cart",
+        "addedToCart": "Added to Cart ✓",
+        "adding": "Adding...",
+        "price": "Price",
+        "description": "Description",
+        "available": "Available",
+        "unavailable": "Unavailable"
+    },
+    "Cart": {
+        "title": "Your cart",
+        "empty": "Your cart is empty.",
+        "continueShopping": "Continue shopping",
+        "quantity": "Quantity",
+        "remove": "Remove",
+        "subtotal": "Subtotal",
+        "checkout": "Go to checkout"
+    },
+    "Checkout": {
+        "title": "Checkout",
+        "customerDetails": "Customer details",
+        "name": "Name",
+        "email": "Email",
+        "phone": "Phone",
+        "address": "Address",
+        "postalCode": "Postal code",
+        "city": "City",
+        "country": "Country",
+        "orderSummary": "Order summary",
+        "subtotal": "Subtotal",
+        "shipping": "Shipping",
+        "total": "Total",
+        "placeOrder": "Place order",
+        "processing": "Processing...",
+        "requiredFields": "Please complete all required fields.",
+        "weight": "Weight",
+        "estimatedDelivery": "Estimated delivery",
+        "emptyCart": "Your cart is empty.",
+        "invalidPostalCode": "Invalid postal code.",
+        "validPostalCode": "Please enter a valid postal code and calculate shipping."
+    },
+    "OrderSuccess": {
+        "title": "Order confirmed",
+        "message": "Thank you for your purchase.",
+        "orderNumber": "Order number",
+        "continueShopping": "Continue shopping",
+        "viewOrders": "View my orders"
+    },
+    "Account": {
+        "title": "My account",
+        "hello": "Hello, {name}",
+        "subtitle": "Manage your account and orders.",
+        "orders": "My orders",
+        "logout": "Logout",
+        "name": "Name",
+        "role": "Role",
+        "accountDetails": "Account details",
+        "loadingAccount": "Loading account...",
+        "manageAccountAndOrders": "Manage your account and orders.",
+        "continueShoppingOrReview": "Continue shopping or review your cart.",
+        "continueShopping": "Continue shopping.",
+        "manageProducts": "Manage products, customers and orders.",
+        "adminDashboard": "Admin dashboard"
+    },
+    "Orders": {
+        "title": "My orders",
+        "empty": "You do not have any orders yet.",
+        "order": "Order",
+        "date": "Date",
+        "status": "Status",
+        "total": "Total",
+        "view": "View order"
+    },
     "Register": {
         "title": "Create Account",
         "name": "Name",
@@ -19,10 +107,13 @@
         "passwordMismatch": "Passwords do not match.",
         "passwordLength": "Password must contain at least 8 characters."
     },
-    "Product": {
-        "addToCart": "Add to cart",
-        "chooseColor": "Choose color",
-        "chooseFont": "Choose font",
-        "keys": "Keys"
+    "Login": {
+        "title": "Login",
+        "email": "Email",
+        "password": "Password",
+        "submit": "Login",
+        "loading": "Logging in...",
+        "noAccount": "Don't have an account?",
+        "register": "Create account"
     }
 }

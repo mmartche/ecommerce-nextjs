@@ -11,9 +11,11 @@ import {
 } from "../../lib/cart";
 
 import { formatWeight } from "../../lib/formatWeight";
+import { useTranslations } from "next-intl";
 
 export default function CartPage() {
   const [cart, setCart] = useState([]);
+  const t = useTranslations("Cart");
 
   function refreshCart() {
     setCart(getCart());
@@ -79,12 +81,12 @@ export default function CartPage() {
           padding: "50px 20px"
         }}
       >
-        <h1>Your Cart</h1>
+        <h1>{t("title")}</h1>
 
-        <p>Your cart is empty.</p>
+        <p>{t("empty")}</p>
 
         <Link href="/">
-          Continue shopping
+          {t("continueShopping")}
         </Link>
       </main>
     );
@@ -106,7 +108,7 @@ export default function CartPage() {
           marginBottom: "30px"
         }}
       >
-        <h1>Your Cart</h1>
+        <h1>{t("title")}</h1>
 
         <button
           onClick={handleClearCart}
