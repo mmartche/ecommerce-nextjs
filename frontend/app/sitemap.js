@@ -1,5 +1,4 @@
-const SITE_URL =
-    "https://lojadafumaca.com";
+const SITE_URL = process.env.SITE_URL || "http://localhost:3000";
 
 const API_URL =
     process.env.API_URL ||

@@ -1,4 +1,6 @@
 export default function robots() {
+    const siteUrl = process.env.SITE_URL || "http://localhost:3000";
+
     return {
         rules: {
             userAgent: "*",
@@ -15,6 +17,6 @@ export default function robots() {
         },
 
         sitemap:
-            "https://lojadafumaca.com/sitemap.xml",
+            `${siteUrl}/sitemap.xml`,
     };
 }

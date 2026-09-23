@@ -47,6 +47,7 @@ services:
       API_URL: http://api:4000
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
       NEXT_PUBLIC_GA_ID: ${NEXT_PUBLIC_GA_ID}
+      SITE_URL: https://lojadafumaca.com
     ports:
       - "127.0.0.1:3000:3000"
     depends_on:

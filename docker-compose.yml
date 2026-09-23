@@ -55,6 +55,7 @@ services:
       NEXT_PUBLIC_API_URL: http://${IP_LOCAL}:4000
       WATCHPACK_POLLING: "true"
       NEXT_PUBLIC_GA_ID: ${NEXT_PUBLIC_GA_ID}
+      SITE_URL: http://localhost:3000
     volumes:
       - ./frontend:/app
       - /app/node_modules
