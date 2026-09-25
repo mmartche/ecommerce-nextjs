@@ -16,7 +16,10 @@ export default function Header() {
     <header
       style={{
         borderBottom: "1px solid #e5e5e5",
-        background: "#fff"
+        background: "#fff",
+        position: "sticky",
+        top: "0",
+        zIndex: "9"
       }}
     >
       <div

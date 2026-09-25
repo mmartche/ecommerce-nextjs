@@ -39,7 +39,21 @@
         "quantity": "Cantidad",
         "remove": "Eliminar",
         "subtotal": "Subtotal",
-        "checkout": "Ir al pago"
+        "checkout": "Ir al pago",
+        "item": "artículo",
+        "items": "artículos",
+        "clearCart": "Vaciar carrito",
+        "summary": "Resumen del pedido",
+        "keys": "Teclas",
+        "color": "Color",
+        "font": "Fuente",
+        "weight": "Peso",
+        "withBorder": "Con borde",
+        "withoutBorder": "Sin borde",
+        "totalWeight": "Peso total",
+        "shipping": "Envío",
+        "calculatedAtCheckout": "Calculado al finalizar la compra",
+        "shippingMessage": "Los gastos de envío se calcularán según la dirección de entrega."
     },
     "Checkout": {
         "title": "Finalizar compra",
@@ -62,7 +76,19 @@
         "estimatedDelivery": "Entrega estimada",
         "emptyCart": "Tu carrito está vacío.",
         "invalidPostalCode": "Código postal no válido.",
-        "validPostalCode": "Introduce un código postal válido y calcula el envío."
+        "validPostalCode": "Introduce un código postal válido y calcula el envío.",
+        "deliveryAddress": "Dirección de entrega",
+        "payment": "Pago",
+        "card": "Tarjeta",
+        "calculateShipping": "Calcular envío",
+        "calculatingShipping": "Calculando envío...",
+        "tryPaymentAgain": "Intentar el pago de nuevo",
+        "shippingRequired": "Calcula el envío antes de realizar el pedido.",
+        "checkoutSubtitle": "Completa tus datos y revisa tu pedido.",
+        "checkingSession": "Comprobando sesión...",
+        "keys": "Teclas",
+        "mbwayDescription": "Paga de forma segura con tu número de móvil.",
+        "cardDescription": "Paga de forma segura con tarjeta de débito o crédito."
     },
     "OrderSuccess": {
         "title": "Pedido confirmado",

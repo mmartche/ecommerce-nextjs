@@ -39,7 +39,21 @@
         "quantity": "Quantité",
         "remove": "Supprimer",
         "subtotal": "Sous-total",
-        "checkout": "Passer à la commande"
+        "checkout": "Passer à la commande",
+        "item": "article",
+        "items": "articles",
+        "clearCart": "Vider le panier",
+        "summary": "Récapitulatif de la commande",
+        "keys": "Touches",
+        "color": "Couleur",
+        "font": "Police",
+        "weight": "Poids",
+        "withBorder": "Avec contour",
+        "withoutBorder": "Sans contour",
+        "totalWeight": "Poids total",
+        "shipping": "Livraison",
+        "calculatedAtCheckout": "Calculée lors du paiement",
+        "shippingMessage": "Les frais de livraison seront calculés selon l'adresse de livraison."
     },
     "Checkout": {
         "title": "Paiement",
@@ -62,7 +76,18 @@
         "estimatedDelivery": "Livraison estimée",
         "emptyCart": "Votre panier est vide.",
         "invalidPostalCode": "Code postal invalide.",
-        "validPostalCode": "Veuillez saisir un code postal valide et calculer les frais de livraison."
+        "deliveryAddress": "Adresse de livraison",
+        "payment": "Paiement",
+        "card": "Carte",
+        "calculateShipping": "Calculer la livraison",
+        "calculatingShipping": "Calcul de la livraison...",
+        "tryPaymentAgain": "Réessayer le paiement",
+        "shippingRequired": "Calculez les frais de livraison avant de passer la commande.",
+        "checkoutSubtitle": "Renseignez vos informations et vérifiez votre commande.",
+        "checkingSession": "Vérification de la session...",
+        "keys": "Touches",
+        "mbwayDescription": "Payez en toute sécurité avec votre numéro de téléphone.",
+        "cardDescription": "Payez en toute sécurité par carte de débit ou de crédit."
     },
     "OrderSuccess": {
         "title": "Commande confirmée",

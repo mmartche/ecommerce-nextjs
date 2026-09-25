@@ -39,7 +39,21 @@
         "quantity": "Quantity",
         "remove": "Remove",
         "subtotal": "Subtotal",
-        "checkout": "Go to checkout"
+        "checkout": "Go to checkout",
+        "item": "item",
+        "items": "items",
+        "clearCart": "Clear cart",
+        "summary": "Order summary",
+        "keys": "Keys",
+        "color": "Color",
+        "font": "Font",
+        "weight": "Weight",
+        "withBorder": "With border",
+        "withoutBorder": "Without border",
+        "totalWeight": "Total weight",
+        "shipping": "Shipping",
+        "calculatedAtCheckout": "Calculated at checkout",
+        "shippingMessage": "Shipping costs will be calculated based on your delivery address."
     },
     "Checkout": {
         "title": "Checkout",
@@ -62,7 +76,19 @@
         "estimatedDelivery": "Estimated delivery",
         "emptyCart": "Your cart is empty.",
         "invalidPostalCode": "Invalid postal code.",
-        "validPostalCode": "Please enter a valid postal code and calculate shipping."
+        "validPostalCode": "Please enter a valid postal code and calculate shipping.",
+        "deliveryAddress": "Delivery address",
+        "payment": "Payment",
+        "card": "Card",
+        "calculateShipping": "Calculate shipping",
+        "calculatingShipping": "Calculating shipping...",
+        "tryPaymentAgain": "Try payment again",
+        "shippingRequired": "Calculate shipping before placing your order.",
+        "checkoutSubtitle": "Complete your details and review your order.",
+        "checkingSession": "Checking session...",
+        "keys": "Keys",
+        "mbwayDescription": "Pay securely with your mobile number.",
+        "cardDescription": "Pay securely by debit or credit card."
     },
     "OrderSuccess": {
         "title": "Order confirmed",
