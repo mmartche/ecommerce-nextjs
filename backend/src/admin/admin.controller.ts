@@ -1,5 +1,6 @@
 import {
   Body,
+  Delete,
   Controller,
   Get,
   Param,
@@ -38,6 +39,9 @@ import { CreateColorDto } from './dto/create-color.dto';
 import { CreateFontDto } from './dto/create-font.dto';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { Request } from 'express';
+import {
+  SaveShippingRateDto,
+} from './dto/save-shipping-rate.dto';
 
 @Controller('api/admin')
 @UseGuards(
@@ -204,5 +208,60 @@ export class AdminController {
   ) {
     return this.adminService.getUser(id);
   }
+  @Get('shipping-rates')
+  getShippingRates() {
+    return this.adminService
+      .getShippingRates();
+  }
 
+  @Get('shipping-rates/:id')
+  getShippingRate(
+    @Param(
+      'id',
+      ParseIntPipe,
+    )
+    id: number,
+  ) {
+    return this.adminService
+      .getShippingRate(id);
+  }
+
+  @Post('shipping-rates')
+  createShippingRate(
+    @Body()
+    dto: SaveShippingRateDto,
+  ) {
+    return this.adminService
+      .createShippingRate(dto);
+  }
+
+  @Patch('shipping-rates/:id')
+  updateShippingRate(
+    @Param(
+      'id',
+      ParseIntPipe,
+    )
+    id: number,
+
+    @Body()
+    dto: SaveShippingRateDto,
+  ) {
+    return this.adminService
+      .updateShippingRate(
+        id,
+        dto,
+      );
+  }
+
+  @Delete('shipping-rates/:id')
+  deleteShippingRate(
+    @Param(
+      'id',
+      ParseIntPipe,
+    )
+    id: number,
+  ) {
+    return this.adminService
+      .deleteShippingRate(id);
+  }
 }

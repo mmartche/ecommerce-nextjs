@@ -3,7 +3,9 @@ import {
   Injectable,
 } from '@nestjs/common';
 
-import { getShippingRegion } from './shipping-region';
+import {
+  PrismaService,
+} from '../prisma/prisma.service';
 
 export type ShippingQuote = {
   provider: string;
@@ -11,21 +13,28 @@ export type ShippingQuote = {
   postalCode: string;
   weightGrams: number;
   price: number;
-  estimatedDeliveryDays: number;
   estimatedDelivery: string;
   deliveryNote: string;
 };
 
 @Injectable()
 export class ShippingService {
-  calculate(
+  constructor(
+    private readonly prisma:
+      PrismaService,
+  ) { }
+
+  async calculate(
     postalCode: string,
     weightGrams: number,
-  ): ShippingQuote {
-    const normalizedPostalCode = postalCode.trim();
-    const region = getShippingRegion(normalizedPostalCode);
+  ): Promise<ShippingQuote> {
+    const normalizedPostalCode =
+      postalCode.trim();
+
     if (
-      !/^\d{4}-\d{3}$/.test(normalizedPostalCode)
+      !/^\d{4}-\d{3}$/.test(
+        normalizedPostalCode
+      )
     ) {
       throw new BadRequestException(
         'Invalid Portuguese postal code',
@@ -41,47 +50,72 @@ export class ShippingService {
       );
     }
 
-    let price: number;
+    const postalCodePrefix =
+      Number(
+        normalizedPostalCode.substring(
+          0,
+          4,
+        )
+      );
 
-    if (weightGrams <= 100) {
-      price = 1.58;
-    } else if (
-      weightGrams <= 500
-    ) {
-      price = 2.34;
-    } else if (
-      weightGrams <= 2000
-    ) {
-      price = 5.55;
-    } else {
+    const rate =
+      await this.prisma.shippingRate.findFirst({
+        where: {
+          active: true,
+
+          postalCodeFrom: {
+            lte:
+              postalCodePrefix,
+          },
+
+          postalCodeTo: {
+            gte:
+              postalCodePrefix,
+          },
+
+          minWeightGrams: {
+            lte:
+              weightGrams,
+          },
+
+          maxWeightGrams: {
+            gte:
+              weightGrams,
+          },
+        },
+
+        orderBy: {
+          price: 'asc',
+        },
+      });
+
+    if (!rate) {
       throw new BadRequestException(
-        'Shipping calculation is currently available only up to 2kg',
+        'No shipping rate available for this postal code and weight',
       );
     }
 
     return {
-      provider: 'CTT',
-      service: 'Standard',
+      provider: rate.provider,
+
+      service: rate.service,
 
       postalCode: normalizedPostalCode,
+
       weightGrams,
 
-      price,
-
-      estimatedDeliveryDays:
-        region === 'ISLANDS'
-          ? null
-          : 3,
+      price:
+        Number(
+          rate.price
+        ),
 
       estimatedDelivery:
-        region === 'ISLANDS'
-          ? 'Delivery may take longer'
-          : 'About 3 business days',
+        rate.estimatedDelivery ||
+        '',
 
       deliveryNote:
-        region === 'ISLANDS'
-          ? 'Delivery times to Azores and Madeira may be extended due to transport limitations.'
-          : 'Delivery time is indicative.',
+        rate.deliveryNote ||
+        '',
     };
   }
 }

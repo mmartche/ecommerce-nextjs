@@ -225,7 +225,7 @@ export class OrdersService {
         };
       });
     const shippingQuote =
-      this.shippingService.calculate(
+      await this.shippingService.calculate(
         dto.shippingAddress.postalCode,
         totalWeightGrams,
       );

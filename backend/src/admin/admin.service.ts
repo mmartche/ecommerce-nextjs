@@ -17,6 +17,7 @@ import { UpdateOrderTrackingDto } from './dto/update-order-tracking.dto';
 import { CreateFontDto } from './dto/create-font.dto';
 import { CreateColorDto } from './dto/create-color.dto';
 import { UploadsService } from './uploads.service';
+import { SaveShippingRateDto } from './dto/save-shipping-rate.dto';
 
 @Injectable()
 export class AdminService {
@@ -855,6 +856,200 @@ export class AdminService {
     }
 
     return user;
+  }
+
+  async getShippingRates() {
+    return this.prisma.shippingRate.findMany({
+      orderBy: [
+        {
+          postalCodeFrom:
+            'asc',
+        },
+        {
+          minWeightGrams:
+            'asc',
+        },
+      ],
+    });
+  }
+
+  async getShippingRate(
+    id: number,
+  ) {
+    const rate =
+      await this.prisma.shippingRate.findUnique({
+        where: {
+          id,
+        },
+      });
+
+    if (!rate) {
+      throw new NotFoundException(
+        'Shipping rate not found',
+      );
+    }
+
+    return rate;
+  }
+
+  private validateShippingRate(
+    dto: SaveShippingRateDto,
+  ) {
+    if (
+      dto.postalCodeFrom >
+      dto.postalCodeTo
+    ) {
+      throw new BadRequestException(
+        'Postal code from cannot be greater than postal code to',
+      );
+    }
+
+    if (
+      dto.minWeightGrams >
+      dto.maxWeightGrams
+    ) {
+      throw new BadRequestException(
+        'Minimum weight cannot be greater than maximum weight',
+      );
+    }
+
+    if (
+      dto.postalCodeFrom < 1000 ||
+      dto.postalCodeTo > 9999
+    ) {
+      throw new BadRequestException(
+        'Postal code range must contain 4 digit prefixes',
+      );
+    }
+  }
+
+  async createShippingRate(
+    dto: SaveShippingRateDto,
+  ) {
+    this.validateShippingRate(
+      dto,
+    );
+
+    return this.prisma.shippingRate.create({
+      data: {
+        provider:
+          dto.provider.trim(),
+
+        service:
+          dto.service.trim(),
+
+        zoneName:
+          dto.zoneName.trim(),
+
+        postalCodeFrom:
+          dto.postalCodeFrom,
+
+        postalCodeTo:
+          dto.postalCodeTo,
+
+        minWeightGrams:
+          dto.minWeightGrams,
+
+        maxWeightGrams:
+          dto.maxWeightGrams,
+
+        price:
+          new Prisma.Decimal(
+            dto.price,
+          ),
+
+        estimatedDelivery:
+          dto.estimatedDelivery
+            ?.trim() ||
+          null,
+
+        deliveryNote:
+          dto.deliveryNote
+            ?.trim() ||
+          null,
+
+        active:
+          dto.active,
+      },
+    });
+  }
+
+  async updateShippingRate(
+    id: number,
+    dto: SaveShippingRateDto,
+  ) {
+    await this.getShippingRate(
+      id,
+    );
+
+    this.validateShippingRate(
+      dto,
+    );
+
+    return this.prisma.shippingRate.update({
+      where: {
+        id,
+      },
+
+      data: {
+        provider:
+          dto.provider.trim(),
+
+        service:
+          dto.service.trim(),
+
+        zoneName:
+          dto.zoneName.trim(),
+
+        postalCodeFrom:
+          dto.postalCodeFrom,
+
+        postalCodeTo:
+          dto.postalCodeTo,
+
+        minWeightGrams:
+          dto.minWeightGrams,
+
+        maxWeightGrams:
+          dto.maxWeightGrams,
+
+        price:
+          new Prisma.Decimal(
+            dto.price,
+          ),
+
+        estimatedDelivery:
+          dto.estimatedDelivery
+            ?.trim() ||
+          null,
+
+        deliveryNote:
+          dto.deliveryNote
+            ?.trim() ||
+          null,
+
+        active:
+          dto.active,
+      },
+    });
+  }
+
+  async deleteShippingRate(
+    id: number,
+  ) {
+    await this.getShippingRate(
+      id,
+    );
+
+    await this.prisma.shippingRate.delete({
+      where: {
+        id,
+      },
+    });
+
+    return {
+      success: true,
+    };
   }
 
 }

@@ -248,3 +248,32 @@ model ProductTranslation {
 
   @@unique([productId, locale])
 }
+
+model ShippingRate {
+  id Int @id @default(autoincrement())
+
+  provider String
+  service  String
+
+  zoneName String
+
+  postalCodeFrom Int
+  postalCodeTo   Int
+
+  minWeightGrams Int
+  maxWeightGrams Int
+
+  price Decimal @db.Decimal(10, 2)
+
+  estimatedDelivery String?
+  deliveryNote      String?
+
+  active Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([postalCodeFrom, postalCodeTo])
+  @@index([minWeightGrams, maxWeightGrams])
+  @@index([active])
+}
