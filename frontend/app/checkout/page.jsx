@@ -239,30 +239,9 @@ export default function CheckoutPage() {
       return;
     }
 
-    try {
-      setError("");
-
-      const data =
-        await apiGet(
-          `${API_URL}/api/postal-codes/${postalCode}`
-        );
-
-      setCustomer(
-        (current) => ({
-          ...current,
-          city:
-            data.locality,
-        })
-      );
-
-      await calculateShippingCost(
-        postalCode
-      );
-    } catch (error) {
-      setError(
-        error.message
-      );
-    }
+    await calculateShippingCost(
+      postalCode
+    );
   }
 
   async function calculateShippingCost(
@@ -281,9 +260,24 @@ export default function CheckoutPage() {
     ) {
       setShipping(null);
 
+      setError(
+        t("invalidPostalCode")
+      );
+
       return;
     }
 
+    if (
+      totalWeightGrams <= 0
+    ) {
+      setShipping(null);
+
+      setError(
+        "Invalid cart weight."
+      );
+
+      return;
+    }
     try {
       setShippingLoading(
         true

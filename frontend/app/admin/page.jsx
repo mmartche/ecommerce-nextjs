@@ -174,6 +174,11 @@ export default function AdminPage() {
           href="/admin/products">
           Products
         </Link>
+        <Link
+          style={styles.refreshButton}
+          href="/admin/shipping">
+          Shipping Rates
+        </Link>
       </div>
 
       {error && (

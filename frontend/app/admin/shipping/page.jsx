@@ -434,6 +434,310 @@ export default function ShippingAdminPage() {
                 </div>
             )}
 
+            <section
+                style={
+                    styles.ratesSection
+                }
+            >
+                <div
+                    style={
+                        styles.ratesHeader
+                    }
+                >
+                    <div>
+                        <h2
+                            style={
+                                styles.sectionTitle
+                            }
+                        >
+                            Current rates
+                        </h2>
+
+                        <p
+                            style={
+                                styles.helperText
+                            }
+                        >
+                            {rates.length} shipping
+                            rate
+                            {rates.length === 1
+                                ? ""
+                                : "s"}
+                        </p>
+                    </div>
+                </div>
+
+                {loading ? (
+                    <div
+                        style={
+                            styles.emptyState
+                        }
+                    >
+                        Loading shipping
+                        rates...
+                    </div>
+                ) : rates.length ===
+                    0 ? (
+                    <div
+                        style={
+                            styles.emptyState
+                        }
+                    >
+                        No shipping rates
+                        configured yet.
+                    </div>
+                ) : (
+                    <div
+                        style={
+                            styles.tableWrapper
+                        }
+                    >
+                        <table
+                            style={
+                                styles.table
+                            }
+                        >
+                            <thead>
+                                <tr>
+                                    <th
+                                        style={
+                                            styles.th
+                                        }
+                                    >
+                                        Zone
+                                    </th>
+
+                                    <th
+                                        style={
+                                            styles.th
+                                        }
+                                    >
+                                        Service
+                                    </th>
+
+                                    <th
+                                        style={
+                                            styles.th
+                                        }
+                                    >
+                                        Postal codes
+                                    </th>
+
+                                    <th
+                                        style={
+                                            styles.th
+                                        }
+                                    >
+                                        Weight
+                                    </th>
+
+                                    <th
+                                        style={
+                                            styles.th
+                                        }
+                                    >
+                                        Price
+                                    </th>
+
+                                    <th
+                                        style={
+                                            styles.th
+                                        }
+                                    >
+                                        Delivery
+                                    </th>
+
+                                    <th
+                                        style={
+                                            styles.th
+                                        }
+                                    >
+                                        Status
+                                    </th>
+
+                                    <th
+                                        style={
+                                            styles.th
+                                        }
+                                    >
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {rates.map(
+                                    (rate) => (
+                                        <tr
+                                            key={
+                                                rate.id
+                                            }
+                                        >
+                                            <td
+                                                style={
+                                                    styles.td
+                                                }
+                                            >
+                                                <strong>
+                                                    {
+                                                        rate.zoneName
+                                                    }
+                                                </strong>
+                                            </td>
+
+                                            <td
+                                                style={
+                                                    styles.td
+                                                }
+                                            >
+                                                {
+                                                    rate.provider
+                                                }
+
+                                                <div
+                                                    style={
+                                                        styles.cellSecondary
+                                                    }
+                                                >
+                                                    {
+                                                        rate.service
+                                                    }
+                                                </div>
+                                            </td>
+
+                                            <td
+                                                style={
+                                                    styles.td
+                                                }
+                                            >
+                                                {
+                                                    rate.postalCodeFrom
+                                                }
+                                                {" – "}
+                                                {
+                                                    rate.postalCodeTo
+                                                }
+                                            </td>
+
+                                            <td
+                                                style={
+                                                    styles.td
+                                                }
+                                            >
+                                                {
+                                                    rate.minWeightGrams
+                                                }
+                                                g
+                                                {" – "}
+                                                {
+                                                    rate.maxWeightGrams
+                                                }
+                                                g
+                                            </td>
+
+                                            <td
+                                                style={
+                                                    styles.td
+                                                }
+                                            >
+                                                <strong>
+                                                    €
+                                                    {Number(
+                                                        rate.price
+                                                    ).toFixed(
+                                                        2
+                                                    )}
+                                                </strong>
+                                            </td>
+
+                                            <td
+                                                style={
+                                                    styles.td
+                                                }
+                                            >
+                                                {rate.estimatedDelivery ||
+                                                    "—"}
+                                            </td>
+
+                                            <td
+                                                style={
+                                                    styles.td
+                                                }
+                                            >
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        toggleActive(
+                                                            rate
+                                                        )
+                                                    }
+                                                    style={{
+                                                        ...styles.statusBadge,
+
+                                                        background:
+                                                            rate.active
+                                                                ? "#edf9f0"
+                                                                : "#f3f3f3",
+
+                                                        color:
+                                                            rate.active
+                                                                ? "#176b2c"
+                                                                : "#777",
+                                                    }}
+                                                >
+                                                    {rate.active
+                                                        ? "Active"
+                                                        : "Inactive"}
+                                                </button>
+                                            </td>
+
+                                            <td
+                                                style={
+                                                    styles.td
+                                                }
+                                            >
+                                                <div
+                                                    style={
+                                                        styles.rowActions
+                                                    }
+                                                >
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            editRate(
+                                                                rate
+                                                            )
+                                                        }
+                                                        style={
+                                                            styles.editButton
+                                                        }
+                                                    >
+                                                        Edit
+                                                    </button>
+
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            deleteRate(
+                                                                rate
+                                                            )
+                                                        }
+                                                        style={
+                                                            styles.deleteButton
+                                                        }
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </section>
             <form
                 onSubmit={
                     handleSubmit
@@ -828,310 +1132,6 @@ export default function ShippingAdminPage() {
                 </div>
             </form>
 
-            <section
-                style={
-                    styles.ratesSection
-                }
-            >
-                <div
-                    style={
-                        styles.ratesHeader
-                    }
-                >
-                    <div>
-                        <h2
-                            style={
-                                styles.sectionTitle
-                            }
-                        >
-                            Current rates
-                        </h2>
-
-                        <p
-                            style={
-                                styles.helperText
-                            }
-                        >
-                            {rates.length} shipping
-                            rate
-                            {rates.length === 1
-                                ? ""
-                                : "s"}
-                        </p>
-                    </div>
-                </div>
-
-                {loading ? (
-                    <div
-                        style={
-                            styles.emptyState
-                        }
-                    >
-                        Loading shipping
-                        rates...
-                    </div>
-                ) : rates.length ===
-                    0 ? (
-                    <div
-                        style={
-                            styles.emptyState
-                        }
-                    >
-                        No shipping rates
-                        configured yet.
-                    </div>
-                ) : (
-                    <div
-                        style={
-                            styles.tableWrapper
-                        }
-                    >
-                        <table
-                            style={
-                                styles.table
-                            }
-                        >
-                            <thead>
-                                <tr>
-                                    <th
-                                        style={
-                                            styles.th
-                                        }
-                                    >
-                                        Zone
-                                    </th>
-
-                                    <th
-                                        style={
-                                            styles.th
-                                        }
-                                    >
-                                        Service
-                                    </th>
-
-                                    <th
-                                        style={
-                                            styles.th
-                                        }
-                                    >
-                                        Postal codes
-                                    </th>
-
-                                    <th
-                                        style={
-                                            styles.th
-                                        }
-                                    >
-                                        Weight
-                                    </th>
-
-                                    <th
-                                        style={
-                                            styles.th
-                                        }
-                                    >
-                                        Price
-                                    </th>
-
-                                    <th
-                                        style={
-                                            styles.th
-                                        }
-                                    >
-                                        Delivery
-                                    </th>
-
-                                    <th
-                                        style={
-                                            styles.th
-                                        }
-                                    >
-                                        Status
-                                    </th>
-
-                                    <th
-                                        style={
-                                            styles.th
-                                        }
-                                    >
-                                        Actions
-                                    </th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                {rates.map(
-                                    (rate) => (
-                                        <tr
-                                            key={
-                                                rate.id
-                                            }
-                                        >
-                                            <td
-                                                style={
-                                                    styles.td
-                                                }
-                                            >
-                                                <strong>
-                                                    {
-                                                        rate.zoneName
-                                                    }
-                                                </strong>
-                                            </td>
-
-                                            <td
-                                                style={
-                                                    styles.td
-                                                }
-                                            >
-                                                {
-                                                    rate.provider
-                                                }
-
-                                                <div
-                                                    style={
-                                                        styles.cellSecondary
-                                                    }
-                                                >
-                                                    {
-                                                        rate.service
-                                                    }
-                                                </div>
-                                            </td>
-
-                                            <td
-                                                style={
-                                                    styles.td
-                                                }
-                                            >
-                                                {
-                                                    rate.postalCodeFrom
-                                                }
-                                                {" – "}
-                                                {
-                                                    rate.postalCodeTo
-                                                }
-                                            </td>
-
-                                            <td
-                                                style={
-                                                    styles.td
-                                                }
-                                            >
-                                                {
-                                                    rate.minWeightGrams
-                                                }
-                                                g
-                                                {" – "}
-                                                {
-                                                    rate.maxWeightGrams
-                                                }
-                                                g
-                                            </td>
-
-                                            <td
-                                                style={
-                                                    styles.td
-                                                }
-                                            >
-                                                <strong>
-                                                    €
-                                                    {Number(
-                                                        rate.price
-                                                    ).toFixed(
-                                                        2
-                                                    )}
-                                                </strong>
-                                            </td>
-
-                                            <td
-                                                style={
-                                                    styles.td
-                                                }
-                                            >
-                                                {rate.estimatedDelivery ||
-                                                    "—"}
-                                            </td>
-
-                                            <td
-                                                style={
-                                                    styles.td
-                                                }
-                                            >
-                                                <button
-                                                    type="button"
-                                                    onClick={() =>
-                                                        toggleActive(
-                                                            rate
-                                                        )
-                                                    }
-                                                    style={{
-                                                        ...styles.statusBadge,
-
-                                                        background:
-                                                            rate.active
-                                                                ? "#edf9f0"
-                                                                : "#f3f3f3",
-
-                                                        color:
-                                                            rate.active
-                                                                ? "#176b2c"
-                                                                : "#777",
-                                                    }}
-                                                >
-                                                    {rate.active
-                                                        ? "Active"
-                                                        : "Inactive"}
-                                                </button>
-                                            </td>
-
-                                            <td
-                                                style={
-                                                    styles.td
-                                                }
-                                            >
-                                                <div
-                                                    style={
-                                                        styles.rowActions
-                                                    }
-                                                >
-                                                    <button
-                                                        type="button"
-                                                        onClick={() =>
-                                                            editRate(
-                                                                rate
-                                                            )
-                                                        }
-                                                        style={
-                                                            styles.editButton
-                                                        }
-                                                    >
-                                                        Edit
-                                                    </button>
-
-                                                    <button
-                                                        type="button"
-                                                        onClick={() =>
-                                                            deleteRate(
-                                                                rate
-                                                            )
-                                                        }
-                                                        style={
-                                                            styles.deleteButton
-                                                        }
-                                                    >
-                                                        Delete
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    )
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-            </section>
         </main>
     );
 }
