@@ -6,8 +6,73 @@ import { LanguageProvider } from "../context/LanguageContext";
 import { cookies } from "next/headers";
 
 export const metadata = {
-  title: "My E-commerce",
-  description: "Custom 3D printed products"
+  metadataBase: new URL(
+    process.env.SITE_URL ||
+    "http://localhost:3000"
+  ),
+
+  title: {
+    default:
+      "Loja da Fumaça | Produtos personalizados",
+    template:
+      "%s | Loja da Fumaça",
+  },
+
+  description:
+    "Produtos personalizados e criativos, produzidos com atenção ao detalhe e enviados para todo Portugal.",
+
+  applicationName:
+    "Loja da Fumaça",
+
+  alternates: {
+    canonical: "/",
+  },
+
+  openGraph: {
+    type: "website",
+
+    siteName:
+      "Loja da Fumaça",
+
+    title:
+      "Loja da Fumaça",
+
+    description:
+      "Produtos personalizados e criativos.",
+
+    images: [
+      {
+        url:
+          "/opengraph-image.jpg",
+        width: 1200,
+        height: 630,
+        alt:
+          "Loja da Fumaça",
+      },
+    ],
+
+    url: "/",
+  },
+
+  twitter: {
+    card:
+      "summary_large_image",
+
+    title:
+      "Loja da Fumaça",
+
+    description:
+      "Produtos personalizados e criativos.",
+
+    images: [
+      "/twitter-image.jpg",
+    ],
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default async function RootLayout({ children }) {
