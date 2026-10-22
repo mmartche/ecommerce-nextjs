@@ -55,19 +55,20 @@ Adminer connection:
 
 ## Prisma
 
-After the containers are running:
+### After the containers running:
 
 ```bash
 docker compose exec api npx prisma migrate deploy
 ```
 
+### When create a new table schema
 ```bash
 docker compose exec api npx prisma generate
 docker compose exec api npx prisma migrate dev --name init
 docker compose exec api npx prisma migrate dev --name product_customization
 ```
 
-To database delete:
+### To delete database
 ```bash
 docker compose run --rm api npx prisma migrate dev --name init
 ```

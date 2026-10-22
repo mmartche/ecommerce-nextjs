@@ -1,24 +1,65 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
+
 import Link from "next/link";
-import { useAuth } from "../../context/AuthContext";
-import { apiGet } from "@/lib/api";
+
+import {
+  useAuth,
+} from "../../context/AuthContext";
+
+import {
+  apiGet,
+} from "@/lib/api";
+
+import {
+  useTranslations,
+} from "next-intl";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
   "http://localhost:4000";
 
 export default function OrdersPage() {
-  const { token, user } = useAuth();
+  const t =
+    useTranslations(
+      "Orders"
+    );
 
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const {
+    user,
+    loading:
+    authLoading,
+  } = useAuth();
+
+  const [
+    orders,
+    setOrders,
+  ] = useState([]);
+
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
+
+  const [
+    error,
+    setError,
+  ] = useState("");
 
   useEffect(() => {
-    if (!token) {
+    if (
+      authLoading
+    ) {
+      return;
+    }
+
+    if (!user) {
       setLoading(false);
+
       return;
     }
 
@@ -27,16 +68,10 @@ export default function OrdersPage() {
         setLoading(true);
         setError("");
 
-        const response = await apiGet(
-          `${API_URL}/api/orders`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        const data = await response;
+        const data =
+          await apiGet(
+            `${API_URL}/api/orders`
+          );
 
         setOrders(
           Array.isArray(data)
@@ -45,8 +80,9 @@ export default function OrdersPage() {
         );
       } catch (err) {
         console.error(err);
+
         setError(
-          "Unable to load your orders."
+          t("loadError")
         );
       } finally {
         setLoading(false);
@@ -54,39 +90,52 @@ export default function OrdersPage() {
     }
 
     loadOrders();
-  }, [token]);
+  }, [
+    authLoading,
+    user,
+    t,
+  ]);
 
-  if (loading) {
+  if (
+    authLoading ||
+    loading
+  ) {
     return (
       <main
-        style={{
-          maxWidth: "900px",
-          margin: "0 auto",
-          padding: "40px 20px",
-        }}
+        style={
+          styles.container
+        }
       >
-        <p>Loading orders...</p>
+        <p>
+          {t(
+            "loading"
+          )}
+        </p>
       </main>
     );
   }
 
-  if (!token || !user) {
+  if (!user) {
     return (
       <main
-        style={{
-          maxWidth: "900px",
-          margin: "0 auto",
-          padding: "40px 20px",
-        }}
+        style={
+          styles.container
+        }
       >
-        <h1>My orders</h1>
+        <h1>
+          {t("title")}
+        </h1>
 
         <p>
-          Please log in to view your orders.
+          {t(
+            "loginRequired"
+          )}
         </p>
 
-        <Link href="/login">
-          Login
+        <Link
+          href="/login?redirect=/orders"
+        >
+          {t("login")}
         </Link>
       </main>
     );
@@ -94,91 +143,289 @@ export default function OrdersPage() {
 
   return (
     <main
-      style={{
-        maxWidth: "900px",
-        margin: "0 auto",
-        padding: "40px 20px",
-      }}
+      style={
+        styles.container
+      }
     >
-      <h1>My orders</h1>
+      <div
+        style={
+          styles.header
+        }
+      >
+        <div>
+          <h1
+            style={
+              styles.title
+            }
+          >
+            {t("title")}
+          </h1>
+
+          <p
+            style={
+              styles.subtitle
+            }
+          >
+            {t(
+              "subtitle"
+            )}
+          </p>
+        </div>
+      </div>
 
       {error && (
-        <p>{error}</p>
+        <div
+          style={
+            styles.error
+          }
+        >
+          {error}
+        </div>
       )}
 
       {!error &&
         orders.length === 0 && (
-          <p>
-            You do not have any orders yet.
-          </p>
+          <div
+            style={
+              styles.empty
+            }
+          >
+            <p>
+              {t(
+                "empty"
+              )}
+            </p>
+
+            <Link
+              href="/"
+              style={
+                styles.shoppingLink
+              }
+            >
+              {t(
+                "continueShopping"
+              )}
+            </Link>
+          </div>
         )}
 
       <div
-        style={{
-          display: "grid",
-          gap: "16px",
-          marginTop: "30px",
-        }}
+        style={
+          styles.list
+        }
       >
-        {orders.map((order) => (
-          <Link
-            key={order.id}
-            href={`/orders/${order.id}`}
-            style={{
-              display: "block",
-              border: "1px solid #ddd",
-              borderRadius: "8px",
-              padding: "20px",
-              textDecoration: "none",
-              color: "inherit",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent:
-                  "space-between",
-                gap: "20px",
-              }}
+        {orders.map(
+          (order) => (
+            <Link
+              key={
+                order.id
+              }
+              href={`/orders/${order.id}`}
+              style={
+                styles.orderCard
+              }
             >
-              <div>
-                <strong>
-                  Order #{order.id}
-                </strong>
+              <div
+                style={
+                  styles.orderHeader
+                }
+              >
+                <div>
+                  <strong
+                    style={
+                      styles.orderNumber
+                    }
+                  >
+                    {t(
+                      "order"
+                    )}{" "}
+                    #{order.id}
+                  </strong>
 
-                {order.createdAt && (
-                  <p>
-                    {new Date(
-                      order.createdAt
-                    ).toLocaleDateString()}
-                  </p>
-                )}
+                  {order.createdAt && (
+                    <div
+                      style={
+                        styles.date
+                      }
+                    >
+                      {new Date(
+                        order.createdAt
+                      ).toLocaleDateString()}
+                    </div>
+                  )}
+                </div>
+
+                <div
+                  style={
+                    styles.right
+                  }
+                >
+                  {order.status && (
+                    <span
+                      style={
+                        styles.status
+                      }
+                    >
+                      {t(
+                        `status.${order.status}`,
+                        {
+                          fallback:
+                            order.status,
+                        }
+                      )}
+                    </span>
+                  )}
+
+                  {order.total != null && (
+                    <strong
+                      style={
+                        styles.total
+                      }
+                    >
+                      €
+                      {Number(
+                        order.total
+                      ).toFixed(
+                        2
+                      )}
+                    </strong>
+                  )}
+                </div>
               </div>
 
               <div
-                style={{
-                  textAlign: "right",
-                }}
+                style={
+                  styles.viewDetails
+                }
               >
-                {order.status && (
-                  <p>
-                    {order.status}
-                  </p>
+                {t(
+                  "viewDetails"
                 )}
-
-                {order.total != null && (
-                  <strong>
-                    €
-                    {Number(
-                      order.total
-                    ).toFixed(2)}
-                  </strong>
-                )}
+                {" →"}
               </div>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          )
+        )}
       </div>
     </main>
   );
 }
+
+const styles = {
+  container: {
+    maxWidth: "900px",
+    margin: "0 auto",
+    padding:
+      "48px 20px 80px",
+  },
+
+  header: {
+    marginBottom:
+      "30px",
+  },
+
+  title: {
+    margin: 0,
+    fontSize:
+      "clamp(30px, 4vw, 40px)",
+  },
+
+  subtitle: {
+    margin:
+      "8px 0 0",
+    color: "#777",
+  },
+
+  list: {
+    display: "grid",
+    gap: "16px",
+    marginTop:
+      "25px",
+  },
+
+  orderCard: {
+    display: "block",
+    border:
+      "1px solid #ddd",
+    borderRadius:
+      "14px",
+    padding: "20px",
+    textDecoration:
+      "none",
+    color: "inherit",
+    background: "#fff",
+  },
+
+  orderHeader: {
+    display: "flex",
+    justifyContent:
+      "space-between",
+    gap: "20px",
+  },
+
+  orderNumber: {
+    fontSize: "17px",
+  },
+
+  date: {
+    marginTop: "7px",
+    color: "#777",
+    fontSize: "13px",
+  },
+
+  right: {
+    display: "grid",
+    justifyItems: "end",
+    gap: "8px",
+  },
+
+  status: {
+    padding:
+      "5px 9px",
+    borderRadius:
+      "20px",
+    background:
+      "#f1f1f1",
+    fontSize: "12px",
+  },
+
+  total: {
+    fontSize: "17px",
+  },
+
+  viewDetails: {
+    marginTop: "18px",
+    paddingTop: "14px",
+    borderTop:
+      "1px solid #eee",
+    fontSize: "13px",
+    color: "#555",
+  },
+
+  error: {
+    padding: "14px",
+    borderRadius:
+      "10px",
+    background:
+      "#fff2f2",
+    color: "#a00000",
+  },
+
+  empty: {
+    padding:
+      "30px 20px",
+    border:
+      "1px dashed #ccc",
+    borderRadius:
+      "14px",
+    textAlign:
+      "center",
+  },
+
+  shoppingLink: {
+    display:
+      "inline-block",
+    marginTop:
+      "10px",
+  },
+};

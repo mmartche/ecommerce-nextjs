@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import {
   useEffect,
   useState,
@@ -8,18 +7,19 @@ import {
 
 import {
   useParams,
-  useRouter,
 } from "next/navigation";
 
-import { useAuth } from "../../../../context/AuthContext";
-import { formatWeight } from "../../../../lib/formatWeight";
-import { apiGet, apiPatch } from "@/lib/api";
+import {
+  apiGet,
+  apiPatch,
+  apiPost,
+} from "@/lib/api";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
   "http://localhost:4000";
 
-const ORDER_STATUSES = [
+const STATUS_OPTIONS = [
   "PENDING",
   "PAID",
   "PROCESSING",
@@ -28,452 +28,1332 @@ const ORDER_STATUSES = [
   "CANCELLED",
 ];
 
-export default function AdminOrderPage() {
-  const params = useParams();
-  const router = useRouter();
+export default function AdminOrderDetailsPage() {
+  const params =
+    useParams();
 
-  const {
-    user,
-    loading: authLoading,
-  } = useAuth();
+  const orderId =
+    params.id;
 
-  const [order, setOrder] = useState(null);
+  const [
+    order,
+    setOrder,
+  ] = useState(null);
 
-  const [loading, setLoading] = useState(true);
+  const [
+    messages,
+    setMessages,
+  ] = useState([]);
 
-  const [saving, setSaving] = useState(false);
+  const [
+    message,
+    setMessage,
+  ] = useState("");
 
-  const [error, setError] = useState("");
+  const [
+    status,
+    setStatus,
+  ] = useState("");
 
-  const [trackingCode, setTrackingCode] = useState("");
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
 
-  const [trackingUrl, setTrackingUrl] = useState("");
+  const [
+    sending,
+    setSending,
+  ] = useState(false);
 
-  useEffect(() => {
-    if (authLoading) {
-      return;
-    }
+  const [
+    updatingStatus,
+    setUpdatingStatus,
+  ] = useState(false);
 
-    if (!user) {
-      router.replace(
-        `/login?redirect=/admin/orders/${params.id}`
-      );
+  const [
+    error,
+    setError,
+  ] = useState("");
 
-      return;
-    }
-
-    if (user.role !== "ADMIN") {
-      router.replace("/account");
-      return;
-    }
-
-    loadOrder();
-  }, [
-    authLoading,
-    user,
-    params.id,
-    router,
-  ]);
+  const [
+    success,
+    setSuccess,
+  ] = useState("");
 
   async function loadOrder() {
-    try {
-      const response = await apiGet(
-        `${API_URL}/api/admin/orders/${params.id}`,
-        {
-          credentials: "include",
-        }
-      );
-
-      const data =
-        await response;
-
-      setTrackingCode(data.trackingCode || "");
-      setTrackingUrl(data.trackingUrl || "");
-
-      setOrder(data);
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function updateStatus(
-    status
-  ) {
-    try {
-      setSaving(true);
-      setError("");
-
-      const response = await apiPatch(
-        `${API_URL}/api/admin/orders/${params.id}/status`,
-        {
-          method: "PATCH",
-
-          credentials: "include",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-
-          body: JSON.stringify({
-            status,
-          }),
-        }
-
-      );
-
-      const data =
-        await response;
-
-      setOrder((current) => ({
-        ...current,
-        status: data.status,
-      }));
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function saveTracking() {
-    const response = await apiPatch(
-      `${API_URL}/api/admin/orders/${order.id}/tracking`,
-      {
-        method: "PATCH",
-        credentials: "include",
-
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
-
-        body: JSON.stringify({
-          trackingCode,
-          trackingUrl:
-            trackingUrl || undefined,
-        }),
-      }
-    );
-
     const data =
-      await response;
+      await apiGet(
+        `${API_URL}/api/admin/orders/${orderId}`
+      );
 
     setOrder(data);
+
+    setStatus(
+      data.status || ""
+    );
   }
 
-  if (
-    authLoading ||
-    loading
+  async function loadMessages() {
+    const data =
+      await apiGet(
+        `${API_URL}/api/admin/orders/${orderId}/messages`
+      );
+
+    setMessages(
+      Array.isArray(data)
+        ? data
+        : []
+    );
+  }
+
+  useEffect(() => {
+    if (!orderId) {
+      return;
+    }
+
+    async function load() {
+      try {
+        setLoading(true);
+        setError("");
+
+        await Promise.all([
+          loadOrder(),
+          loadMessages(),
+        ]);
+      } catch (error) {
+        console.error(error);
+
+        setError(
+          error.message ||
+          "Unable to load order."
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    load();
+  }, [
+    orderId,
+  ]);
+
+  useEffect(() => {
+    if (!orderId) {
+      return;
+    }
+
+    const interval =
+      setInterval(
+        () => {
+          loadMessages()
+            .catch(
+              console.error
+            );
+        },
+        15000
+      );
+
+    return () =>
+      clearInterval(
+        interval
+      );
+  }, [
+    orderId,
+  ]);
+
+  async function sendMessage(
+    event
   ) {
+    event.preventDefault();
+
+    const cleanMessage =
+      message.trim();
+
+    if (
+      !cleanMessage ||
+      sending
+    ) {
+      return;
+    }
+
+    try {
+      setSending(true);
+
+      setError("");
+      setSuccess("");
+
+      await apiPost(
+        `${API_URL}/api/admin/orders/${orderId}/messages`,
+        {
+          message:
+            cleanMessage,
+        }
+      );
+
+      setMessage("");
+
+      await loadMessages();
+
+      setSuccess(
+        "Message sent."
+      );
+    } catch (error) {
+      console.error(error);
+
+      setError(
+        error.message ||
+        "Unable to send message."
+      );
+    } finally {
+      setSending(false);
+    }
+  }
+
+  async function updateStatus() {
+    if (
+      !status ||
+      updatingStatus
+    ) {
+      return;
+    }
+
+    try {
+      setUpdatingStatus(true);
+
+      setError("");
+      setSuccess("");
+
+      await apiPatch(
+        `${API_URL}/api/admin/orders/${orderId}`,
+        {
+          status,
+        }
+      );
+
+      await loadOrder();
+      await loadMessages();
+
+      setSuccess(
+        "Order status updated."
+      );
+    } catch (error) {
+      console.error(error);
+
+      setError(
+        error.message ||
+        "Unable to update order status."
+      );
+    } finally {
+      setUpdatingStatus(false);
+    }
+  }
+
+  if (loading) {
     return (
-      <main style={styles.container}>
-        Loading...
+      <main
+        style={
+          styles.container
+        }
+      >
+        Loading order...
       </main>
     );
   }
 
-  if (
-    !user ||
-    user.role !== "ADMIN"
-  ) {
-    return null;
-  }
-
-  if (error && !order) {
+  if (!order) {
     return (
-      <main style={styles.container}>
-        <p>{error}</p>
-
-        <Link href="/admin">
-          Back to admin
-        </Link>
+      <main
+        style={
+          styles.container
+        }
+      >
+        <div
+          style={
+            styles.error
+          }
+        >
+          {error ||
+            "Order not found."}
+        </div>
       </main>
     );
   }
 
   return (
-    <main style={styles.container}>
-      <Link href="/admin">
-        ← Back to orders
-      </Link>
-
-      <div style={styles.header}>
+    <main
+      style={
+        styles.container
+      }
+    >
+      <div
+        style={
+          styles.header
+        }
+      >
         <div>
-          <h1>
+          <div
+            style={
+              styles.eyebrow
+            }
+          >
+            Admin order
+          </div>
+
+          <h1
+            style={
+              styles.title
+            }
+          >
             Order #{order.id}
           </h1>
 
-          <p>
-            {new Date(
-              order.createdAt
-            ).toLocaleString()}
-          </p>
+          {order.createdAt && (
+            <div
+              style={
+                styles.date
+              }
+            >
+              {new Date(
+                order.createdAt
+              ).toLocaleString()}
+            </div>
+          )}
         </div>
 
-        <div>
-          <label>
-            <strong>Status</strong>
-          </label>
-
-          <br />
-
+        <div
+          style={
+            styles.statusEditor
+          }
+        >
           <select
-            value={order.status}
-            disabled={saving}
-            onChange={(event) =>
-              updateStatus(
+            value={
+              status
+            }
+            onChange={(
+              event
+            ) =>
+              setStatus(
                 event.target.value
               )
             }
-            style={styles.select}
+            style={
+              styles.select
+            }
           >
-            {ORDER_STATUSES.map(
-              (status) => (
+            {STATUS_OPTIONS.map(
+              (item) => (
                 <option
-                  key={status}
-                  value={status}
+                  key={
+                    item
+                  }
+                  value={
+                    item
+                  }
                 >
-                  {status}
+                  {item}
                 </option>
               )
             )}
           </select>
+
+          <button
+            type="button"
+            onClick={
+              updateStatus
+            }
+            disabled={
+              updatingStatus ||
+              status ===
+                order.status
+            }
+            style={{
+              ...styles.primaryButton,
+
+              opacity:
+                updatingStatus ||
+                status ===
+                  order.status
+                  ? 0.5
+                  : 1,
+            }}
+          >
+            {updatingStatus
+              ? "Updating..."
+              : "Update status"}
+          </button>
         </div>
       </div>
 
       {error && (
-        <p style={styles.error}>
+        <div
+          style={
+            styles.error
+          }
+        >
           {error}
-        </p>
+        </div>
       )}
 
-      <div style={styles.grid}>
-        <section style={styles.card}>
-          <h2>Customer</h2>
+      {success && (
+        <div
+          style={
+            styles.success
+          }
+        >
+          {success}
+        </div>
+      )}
 
-          <p>
-            <strong>
-              {order.user.name}
-            </strong>
-          </p>
-
-          <p>
-            {order.user.email}
-          </p>
-        </section>
-
-        <section style={styles.card}>
-          <h2>
-            Shipping address
-          </h2>
-
-          <p>
-            {order.shippingName}
-          </p>
-
-          <p>
-            {order.shippingAddress}
-          </p>
-
-          <p>
-            {
-              order.shippingPostalCode
-            }{" "}
-            {order.shippingCity}
-          </p>
-
-          <p>
-            {order.shippingCountry}
-          </p>
-        </section>
-      </div>
-
-      <section style={styles.card}>
-        <h2>Items</h2>
-
-        {order.items.map(
-          (item) => (
-            <div
-              key={item.id}
-              style={styles.item}
+      <div
+        style={
+          styles.layout
+        }
+      >
+        <div>
+          <section
+            style={
+              styles.card
+            }
+          >
+            <h2
+              style={
+                styles.sectionTitle
+              }
             >
-              <div>
+              Customer
+            </h2>
+
+            <div
+              style={
+                styles.detailsGrid
+              }
+            >
+              <Detail
+                label="Name"
+                value={
+                  order.shippingName
+                }
+              />
+
+              <Detail
+                label="Address"
+                value={
+                  order.shippingAddress
+                }
+              />
+
+              <Detail
+                label="Postal code"
+                value={
+                  order.shippingPostalCode
+                }
+              />
+
+              <Detail
+                label="City"
+                value={
+                  order.shippingCity
+                }
+              />
+
+              <Detail
+                label="Country"
+                value={
+                  order.shippingCountry
+                }
+              />
+
+              <Detail
+                label="Shipping"
+                value={
+                  order.shippingProvider
+                    ? `${order.shippingProvider} ${order.shippingService || ""}`
+                    : "—"
+                }
+              />
+            </div>
+          </section>
+
+          <section
+            style={
+              styles.card
+            }
+          >
+            <h2
+              style={
+                styles.sectionTitle
+              }
+            >
+              Items
+            </h2>
+
+            <div
+              style={
+                styles.items
+              }
+            >
+              {order.items?.map(
+                (item) => (
+                  <div
+                    key={
+                      item.id
+                    }
+                    style={
+                      styles.item
+                    }
+                  >
+                    <div>
+                      <strong>
+                        {
+                          item.product
+                            ?.name
+                        }
+                      </strong>
+
+                      <div
+                        style={
+                          styles.itemMeta
+                        }
+                      >
+                        Quantity:{" "}
+                        {
+                          item.quantity
+                        }
+                      </div>
+
+                      {item.keys != null && (
+                        <div
+                          style={
+                            styles.itemMeta
+                          }
+                        >
+                          Keys:{" "}
+                          {
+                            item.keys
+                          }
+                        </div>
+                      )}
+
+                      {item.characters && (
+                        <div
+                          style={
+                            styles.itemMeta
+                          }
+                        >
+                          Characters:{" "}
+                          {
+                            item.characters
+                          }
+                        </div>
+                      )}
+
+                      {item.colorName && (
+                        <div
+                          style={
+                            styles.itemMeta
+                          }
+                        >
+                          Color:{" "}
+                          {
+                            item.colorName
+                          }
+                        </div>
+                      )}
+
+                      {item.fontName && (
+                        <div
+                          style={
+                            styles.itemMeta
+                          }
+                        >
+                          Font:{" "}
+                          {
+                            item.fontName
+                          }
+                        </div>
+                      )}
+                    </div>
+
+                    {item.totalPrice != null && (
+                      <strong>
+                        €
+                        {Number(
+                          item.totalPrice
+                        ).toFixed(
+                          2
+                        )}
+                      </strong>
+                    )}
+                  </div>
+                )
+              )}
+            </div>
+
+            <div
+              style={
+                styles.summary
+              }
+            >
+              <SummaryRow
+                label="Subtotal"
+                value={`€${Number(
+                  order.subtotal ||
+                    0
+                ).toFixed(2)}`}
+              />
+
+              <SummaryRow
+                label="Shipping"
+                value={`€${Number(
+                  order.shipping ||
+                    0
+                ).toFixed(2)}`}
+              />
+
+              <div
+                style={
+                  styles.totalRow
+                }
+              >
                 <strong>
-                  {item.product.name}
+                  Total
                 </strong>
 
-                {item.characters && (
-                  <p>
-                    <strong>Characters:</strong>{" "}
-                    {item.characters}
-                  </p>
-                )}
-
-                <p>
-                  Quantity:{" "}
-                  {item.quantity}
-                </p>
-
-                <p>
-                  Keys: {item.keys}
-                </p>
-
-                <p>
-                  Color:{" "}
-                  {item.colorName ||
-                    "-"}
-                </p>
-
-                <p>
-                  Font:{" "}
-                  {item.fontName ||
-                    "-"}
-                </p>
+                <strong>
+                  €
+                  {Number(
+                    order.total ||
+                      0
+                  ).toFixed(
+                    2
+                  )}
+                </strong>
               </div>
-
-              <strong>
-                €
-                {Number(
-                  item.totalPrice
-                ).toFixed(2)}
-              </strong>
             </div>
-          )
-        )}
-      </section>
+          </section>
+        </div>
 
-      <section style={styles.card}>
-        <h3>Shipping tracking</h3>
-
-        <input
-          value={trackingCode}
-          onChange={(e) =>
-            setTrackingCode(
-              e.target.value
-            )
+        <section
+          style={
+            styles.chatCard
           }
-          placeholder="Tracking code"
-        />
-
-        <input
-          value={trackingUrl}
-          onChange={(e) =>
-            setTrackingUrl(
-              e.target.value
-            )
-          }
-          placeholder="Tracking URL"
-        />
-
-        <button
-          onClick={saveTracking}
         >
-          Save tracking
-        </button>
-      </section>
+          <div
+            style={
+              styles.chatHeader
+            }
+          >
+            <h2
+              style={
+                styles.sectionTitle
+              }
+            >
+              Order history
+            </h2>
 
-      <section style={styles.summary}>
-        <p>
-          Weight:{" "}
-          <strong>
-            {formatWeight(
-              order.totalWeightGrams
+            <p
+              style={
+                styles.chatSubtitle
+              }
+            >
+              Messages and status
+              changes for this order.
+            </p>
+          </div>
+
+          <div
+            style={
+              styles.messages
+            }
+          >
+            {messages.length ===
+              0 && (
+              <div
+                style={
+                  styles.noMessages
+                }
+              >
+                No messages yet.
+              </div>
             )}
-          </strong>
-        </p>
 
-        <p>
-          Shipping service:{" "}
-          <strong>
-            {order.shippingProvider || "—"}{" "}
-            {order.shippingService || ""}
-          </strong>
-        </p>
+            {messages.map(
+              (item) => (
+                <AdminMessage
+                  key={
+                    item.id
+                  }
+                  item={
+                    item
+                  }
+                />
+              )
+            )}
+          </div>
 
-        <p>
-          Subtotal: €
-          {Number(
-            order.subtotal
-          ).toFixed(2)}
-        </p>
+          <form
+            onSubmit={
+              sendMessage
+            }
+            style={
+              styles.messageForm
+            }
+          >
+            <textarea
+              value={
+                message
+              }
+              onChange={(
+                event
+              ) =>
+                setMessage(
+                  event.target.value
+                )
+              }
+              placeholder="Write a message to the customer..."
+              rows={3}
+              maxLength={2000}
+              style={
+                styles.textarea
+              }
+            />
 
-        <p>
-          Shipping: €
-          {Number(
-            order.shipping
-          ).toFixed(2)}
-        </p>
+            <div
+              style={
+                styles.sendRow
+              }
+            >
+              <small
+                style={
+                  styles.counter
+                }
+              >
+                {message.length}
+                /2000
+              </small>
 
-        <h2>
-          Total: €
-          {Number(
-            order.total
-          ).toFixed(2)}
-        </h2>
-      </section>
+              <button
+                type="submit"
+                disabled={
+                  sending ||
+                  !message.trim()
+                }
+                style={{
+                  ...styles.primaryButton,
 
-
+                  opacity:
+                    sending ||
+                    !message.trim()
+                      ? 0.5
+                      : 1,
+                }}
+              >
+                {sending
+                  ? "Sending..."
+                  : "Send message"}
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
     </main>
+  );
+}
+
+function AdminMessage({
+  item,
+}) {
+  if (
+    item.type ===
+      "SYSTEM" ||
+    item.type ===
+      "STATUS"
+  ) {
+    return (
+      <div
+        style={
+          styles.systemMessage
+        }
+      >
+        <div>
+          {item.type ===
+          "STATUS"
+            ? `Status changed to ${item.message}`
+            : item.message}
+        </div>
+
+        <small>
+          {new Date(
+            item.createdAt
+          ).toLocaleString()}
+        </small>
+      </div>
+    );
+  }
+
+  const admin =
+    item.authorType ===
+    "ADMIN";
+
+  return (
+    <div
+      style={{
+        ...styles.messageRow,
+
+        justifyContent:
+          admin
+            ? "flex-end"
+            : "flex-start",
+      }}
+    >
+      <div
+        style={{
+          ...styles.messageBubble,
+
+          background:
+            admin
+              ? "#111"
+              : "#e8eef7",
+
+          color:
+            admin
+              ? "#fff"
+              : "#111",
+        }}
+      >
+        <div
+          style={
+            styles.messageAuthor
+          }
+        >
+          {admin
+            ? "You"
+            : "Customer"}
+        </div>
+
+        <div
+          style={
+            styles.messageText
+          }
+        >
+          {item.message}
+        </div>
+
+        <small
+          style={{
+            ...styles.messageDate,
+
+            color:
+              admin
+                ? "#ccc"
+                : "#777",
+          }}
+        >
+          {new Date(
+            item.createdAt
+          ).toLocaleString()}
+        </small>
+      </div>
+    </div>
+  );
+}
+
+function Detail({
+  label,
+  value,
+}) {
+  return (
+    <div>
+      <div
+        style={
+          styles.detailLabel
+        }
+      >
+        {label}
+      </div>
+
+      <div>
+        {value || "—"}
+      </div>
+    </div>
+  );
+}
+
+function SummaryRow({
+  label,
+  value,
+}) {
+  return (
+    <div
+      style={
+        styles.summaryRow
+      }
+    >
+      <span>
+        {label}
+      </span>
+
+      <span>
+        {value}
+      </span>
+    </div>
   );
 }
 
 const styles = {
   container: {
-    maxWidth: "1000px",
-    margin: "0 auto",
-    padding: "48px 20px",
+    maxWidth:
+      "1250px",
+
+    margin:
+      "0 auto",
+
+    padding:
+      "40px 20px 80px",
   },
 
   header: {
-    display: "flex",
+    display:
+      "flex",
+
     justifyContent:
       "space-between",
-    gap: "20px",
-    marginTop: "25px",
-    marginBottom: "30px",
+
+    alignItems:
+      "flex-start",
+
+    gap:
+      "20px",
+
+    marginBottom:
+      "28px",
   },
 
-  grid: {
-    display: "grid",
+  eyebrow: {
+    color:
+      "#777",
+
+    fontSize:
+      "12px",
+
+    textTransform:
+      "uppercase",
+  },
+
+  title: {
+    margin:
+      "5px 0",
+
+    fontSize:
+      "36px",
+  },
+
+  date: {
+    color:
+      "#777",
+
+    fontSize:
+      "13px",
+  },
+
+  statusEditor: {
+    display:
+      "flex",
+
+    gap:
+      "10px",
+
+    alignItems:
+      "center",
+  },
+
+  select: {
+    padding:
+      "11px 12px",
+
+    border:
+      "1px solid #ccc",
+
+    borderRadius:
+      "9px",
+
+    background:
+      "#fff",
+  },
+
+  primaryButton: {
+    border:
+      "none",
+
+    background:
+      "#111",
+
+    color:
+      "#fff",
+
+    borderRadius:
+      "9px",
+
+    padding:
+      "11px 16px",
+
+    cursor:
+      "pointer",
+
+    fontWeight:
+      600,
+  },
+
+  error: {
+    marginBottom:
+      "20px",
+
+    padding:
+      "14px",
+
+    borderRadius:
+      "10px",
+
+    background:
+      "#fff2f2",
+
+    color:
+      "#a00000",
+  },
+
+  success: {
+    marginBottom:
+      "20px",
+
+    padding:
+      "14px",
+
+    borderRadius:
+      "10px",
+
+    background:
+      "#effaf1",
+
+    color:
+      "#176b2c",
+  },
+
+  layout: {
+    display:
+      "grid",
+
     gridTemplateColumns:
-      "repeat(auto-fit, minmax(280px, 1fr))",
-    gap: "20px",
+      "minmax(0, 1fr) minmax(350px, 450px)",
+
+    gap:
+      "30px",
+
+    alignItems:
+      "start",
   },
 
   card: {
-    border: "1px solid #ddd",
-    borderRadius: "12px",
-    padding: "22px",
-    marginBottom: "20px",
+    padding:
+      "24px",
+
+    border:
+      "1px solid #ddd",
+
+    borderRadius:
+      "16px",
+
+    marginBottom:
+      "20px",
+
+    background:
+      "#fff",
+  },
+
+  sectionTitle: {
+    margin:
+      "0 0 18px",
+
+    fontSize:
+      "20px",
+  },
+
+  detailsGrid: {
+    display:
+      "grid",
+
+    gridTemplateColumns:
+      "repeat(auto-fit, minmax(180px, 1fr))",
+
+    gap:
+      "18px",
+  },
+
+  detailLabel: {
+    marginBottom:
+      "4px",
+
+    color:
+      "#777",
+
+    fontSize:
+      "12px",
+
+    textTransform:
+      "uppercase",
+  },
+
+  items: {
+    display:
+      "grid",
+
+    gap:
+      "16px",
   },
 
   item: {
-    display: "flex",
+    display:
+      "flex",
+
     justifyContent:
       "space-between",
-    gap: "20px",
-    padding: "16px 0",
+
+    gap:
+      "20px",
+
+    paddingBottom:
+      "16px",
+
     borderBottom:
       "1px solid #eee",
   },
 
-  select: {
-    marginTop: "8px",
-    padding: "10px",
-    borderRadius: "8px",
-    border: "1px solid #ccc",
+  itemMeta: {
+    marginTop:
+      "4px",
+
+    color:
+      "#777",
+
+    fontSize:
+      "13px",
   },
 
   summary: {
-    maxWidth: "350px",
-    marginLeft: "auto",
-    textAlign: "right",
+    display:
+      "grid",
+
+    gap:
+      "10px",
+
+    marginTop:
+      "20px",
   },
 
-  error: {
-    color: "#b00020",
+  summaryRow: {
+    display:
+      "flex",
+
+    justifyContent:
+      "space-between",
+  },
+
+  totalRow: {
+    display:
+      "flex",
+
+    justifyContent:
+      "space-between",
+
+    borderTop:
+      "1px solid #ddd",
+
+    paddingTop:
+      "15px",
+
+    marginTop:
+      "5px",
+
+    fontSize:
+      "18px",
+  },
+
+  chatCard: {
+    position:
+      "sticky",
+
+    top:
+      "20px",
+
+    border:
+      "1px solid #ddd",
+
+    borderRadius:
+      "16px",
+
+    overflow:
+      "hidden",
+
+    background:
+      "#fff",
+  },
+
+  chatHeader: {
+    padding:
+      "20px",
+
+    borderBottom:
+      "1px solid #eee",
+  },
+
+  chatSubtitle: {
+    margin:
+      "-10px 0 0",
+
+    color:
+      "#777",
+
+    fontSize:
+      "13px",
+  },
+
+  messages: {
+    height:
+      "500px",
+
+    overflowY:
+      "auto",
+
+    padding:
+      "20px",
+
+    display:
+      "flex",
+
+    flexDirection:
+      "column",
+
+    gap:
+      "14px",
+
+    background:
+      "#fafafa",
+  },
+
+  noMessages: {
+    margin:
+      "auto",
+
+    color:
+      "#888",
+  },
+
+  messageRow: {
+    display:
+      "flex",
+  },
+
+  messageBubble: {
+    maxWidth:
+      "80%",
+
+    padding:
+      "11px 13px",
+
+    borderRadius:
+      "14px",
+  },
+
+  messageAuthor: {
+    fontSize:
+      "11px",
+
+    fontWeight:
+      700,
+
+    marginBottom:
+      "4px",
+  },
+
+  messageText: {
+    whiteSpace:
+      "pre-wrap",
+
+    lineHeight:
+      1.45,
+  },
+
+  messageDate: {
+    display:
+      "block",
+
+    marginTop:
+      "7px",
+
+    fontSize:
+      "10px",
+  },
+
+  systemMessage: {
+    textAlign:
+      "center",
+
+    color:
+      "#777",
+
+    fontSize:
+      "12px",
+
+    padding:
+      "6px",
+  },
+
+  messageForm: {
+    padding:
+      "16px",
+
+    borderTop:
+      "1px solid #eee",
+  },
+
+  textarea: {
+    width:
+      "100%",
+
+    boxSizing:
+      "border-box",
+
+    resize:
+      "vertical",
+
+    padding:
+      "11px",
+
+    border:
+      "1px solid #ccc",
+
+    borderRadius:
+      "10px",
+
+    fontFamily:
+      "inherit",
+  },
+
+  sendRow: {
+    display:
+      "flex",
+
+    justifyContent:
+      "space-between",
+
+    alignItems:
+      "center",
+
+    marginTop:
+      "8px",
+  },
+
+  counter: {
+    color:
+      "#888",
   },
 };

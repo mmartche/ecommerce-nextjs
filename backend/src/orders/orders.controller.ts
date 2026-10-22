@@ -21,6 +21,10 @@ import {
   CreateOrderDto,
 } from './dto/create-order.dto';
 
+import {
+  CreateOrderMessageDto,
+} from './dto/create-order-message.dto';
+
 type AuthenticatedRequest =
   Request & {
     user: {
@@ -78,6 +82,42 @@ export class OrdersController {
       .findOneByUser(
         request.user.id,
         id,
+      );
+  }
+
+  @Get(':id/messages')
+  getMessages(
+    @Req() req,
+    @Param(
+      'id',
+      ParseIntPipe,
+    )
+    orderId: number,
+  ) {
+    return this.ordersService
+      .getMessages(
+        req.user.id,
+        orderId,
+      );
+  }
+
+  @Post(':id/messages')
+  createMessage(
+    @Req() req,
+    @Param(
+      'id',
+      ParseIntPipe,
+    )
+    orderId: number,
+
+    @Body()
+    dto: CreateOrderMessageDto,
+  ) {
+    return this.ordersService
+      .createCustomerMessage(
+        req.user.id,
+        orderId,
+        dto.message,
       );
   }
 }

@@ -354,4 +354,75 @@ export class OrdersService {
 
     return order;
   }
+
+  async getMessages(
+    userId: number,
+    orderId: number,
+  ) {
+    const order =
+      await this.prisma.order
+        .findFirst({
+          where: {
+            id: orderId,
+            userId,
+          },
+        });
+
+    if (!order) {
+      throw new NotFoundException(
+        'Order not found',
+      );
+    }
+
+    return this.prisma
+      .orderMessage
+      .findMany({
+        where: {
+          orderId,
+        },
+
+        orderBy: {
+          createdAt:
+            'asc',
+        },
+      });
+  }
+
+  async createCustomerMessage(
+    userId: number,
+    orderId: number,
+    message: string,
+  ) {
+    const order =
+      await this.prisma.order
+        .findFirst({
+          where: {
+            id: orderId,
+            userId,
+          },
+        });
+
+    if (!order) {
+      throw new NotFoundException(
+        'Order not found',
+      );
+    }
+
+    return this.prisma
+      .orderMessage
+      .create({
+        data: {
+          orderId,
+
+          type:
+            'MESSAGE',
+
+          authorType:
+            'CUSTOMER',
+
+          message:
+            message.trim(),
+        },
+      });
+  }
 }

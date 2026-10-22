@@ -171,6 +171,7 @@ export class AdminService {
 
         select: {
           id: true,
+          status: true,
         },
       });
 
@@ -180,15 +181,47 @@ export class AdminService {
       );
     }
 
-    return this.prisma.order.update({
-      where: {
-        id,
-      },
+    if (
+      existing.status === status
+    ) {
+      return this.prisma.order.findUnique({
+        where: {
+          id,
+        },
+      });
+    }
 
-      data: {
-        status,
+    return this.prisma.$transaction(
+      async (tx) => {
+        const updatedOrder =
+          await tx.order.update({
+            where: {
+              id,
+            },
+
+            data: {
+              status,
+            },
+          });
+
+        await tx.orderMessage.create({
+          data: {
+            orderId: id,
+
+            type:
+              'STATUS',
+
+            authorType:
+              'SYSTEM',
+
+            message:
+              status,
+          },
+        });
+
+        return updatedOrder;
       },
-    });
+    );
   }
 
   async findAllProducts() {
@@ -1052,4 +1085,70 @@ export class AdminService {
     };
   }
 
+  async getOrderMessages(
+    orderId: number,
+  ) {
+    const order =
+      await this.prisma.order
+        .findUnique({
+          where: {
+            id: orderId,
+          },
+        });
+
+    if (!order) {
+      throw new NotFoundException(
+        'Order not found',
+      );
+    }
+
+    return this.prisma
+      .orderMessage
+      .findMany({
+        where: {
+          orderId,
+        },
+
+        orderBy: {
+          createdAt:
+            'asc',
+        },
+      });
+  }
+
+  async createOrderMessage(
+    orderId: number,
+    message: string,
+  ) {
+    const order =
+      await this.prisma.order
+        .findUnique({
+          where: {
+            id: orderId,
+          },
+        });
+
+    if (!order) {
+      throw new NotFoundException(
+        'Order not found',
+      );
+    }
+
+    return this.prisma
+      .orderMessage
+      .create({
+        data: {
+          orderId,
+
+          type:
+            'MESSAGE',
+
+          authorType:
+            'ADMIN',
+
+          message:
+            message.trim(),
+        },
+      });
+  }
 }

@@ -13,6 +13,7 @@ import {
 
 import {
   UserRole,
+  OrderStatus,
 } from '@prisma/client';
 
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -42,6 +43,10 @@ import { Request } from 'express';
 import {
   SaveShippingRateDto,
 } from './dto/save-shipping-rate.dto';
+
+import {
+  CreateOrderMessageDto,
+} from '../orders/dto/create-order-message.dto';
 
 @Controller('api/admin')
 @UseGuards(
@@ -263,5 +268,57 @@ export class AdminController {
   ) {
     return this.adminService
       .deleteShippingRate(id);
+  }
+
+  @Get('orders/:id/messages')
+  getOrderMessages(
+    @Param(
+      'id',
+      ParseIntPipe,
+    )
+    orderId: number,
+  ) {
+    return this.adminService
+      .getOrderMessages(
+        orderId,
+      );
+  }
+
+  @Post('orders/:id/messages')
+  createOrderMessage(
+    @Param(
+      'id',
+      ParseIntPipe,
+    )
+    orderId: number,
+
+    @Body()
+    dto: CreateOrderMessageDto,
+  ) {
+    return this.adminService
+      .createOrderMessage(
+        orderId,
+        dto.message,
+      );
+  }
+
+  @Patch('orders/:id')
+  updateOrderStatus(
+    @Param(
+      'id',
+      ParseIntPipe,
+    )
+    id: number,
+
+    @Body()
+    body: {
+      status: OrderStatus;
+    },
+  ) {
+    return this.adminService
+      .updateOrderStatus(
+        id,
+        body.status,
+      );
   }
 }

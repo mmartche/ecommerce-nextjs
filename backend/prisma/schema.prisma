@@ -141,6 +141,8 @@ model Order {
   trackingUrl   String?
   shippedAt     DateTime?
 
+  messages OrderMessage[]
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -276,4 +278,35 @@ model ShippingRate {
   @@index([postalCodeFrom, postalCodeTo])
   @@index([minWeightGrams, maxWeightGrams])
   @@index([active])
+}
+
+model OrderMessage {
+  id Int @id @default(autoincrement())
+
+  orderId Int
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  type OrderMessageType
+
+  authorType OrderMessageAuthor
+
+  message String
+
+  createdAt DateTime @default(now())
+
+  @@index([orderId])
+  @@index([createdAt])
+}
+
+enum OrderMessageType {
+  MESSAGE
+  STATUS
+  SYSTEM
+}
+
+enum OrderMessageAuthor {
+  CUSTOMER
+  ADMIN
+  SYSTEM
 }

@@ -404,18 +404,18 @@ export default function CheckoutPage() {
         );
       }
 
-      await apiPost(
-        `${API_URL}/api/payments/create`,
-        {
-          orderId,
+      // await apiPost(
+      //   `${API_URL}/api/payments/create`,
+      //   {
+      //     orderId,
 
-          method:
-            paymentMethod,
+      //     method:
+      //       paymentMethod,
 
-          mobileNumber:
-            customer.phone,
-        }
-      );
+      //     mobileNumber:
+      //       customer.phone,
+      //   }
+      // );
 
       clearCart();
 
